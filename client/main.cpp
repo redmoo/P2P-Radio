@@ -4,11 +4,12 @@
 
 int main(int argc, char *argv[])
 {
-    StreamReceiver recv;
-
     QApplication a(argc, argv);
+
     //MainWindow w;
     //w.show();
+
+    StreamReceiver recv;
 
     return a.exec();
 }
