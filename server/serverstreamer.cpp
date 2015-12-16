@@ -11,3 +11,4 @@ void ServerStreamer::write(QByteArray data)
     socket->writeDatagram(data, QHostAddress::LocalHost, 1233);
 }
 
+

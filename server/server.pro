@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT		 += network
+QT		 += multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,9 +16,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         main_window.cpp \
-    serverstreamer.cpp
+    serverstreamer.cpp \
+    player.cpp
 
 HEADERS  += main_window.h \
-    serverstreamer.h
+    serverstreamer.h \
+    player.h
 
 FORMS    += main_window.ui
+
+RESOURCES += \
+    music.qrc
