@@ -5,9 +5,10 @@ Player::Player(QObject *parent) : QObject(parent)
     player = new QMediaPlayer;
     // ...
     //QFile file(":/habibi.mp3");
-    player->setMedia(QUrl::fromLocalFile("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3"));
+    //player->setMedia(QUrl::fromLocalFile("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3"));
+    //player->setMedia(QUrl::fromLocalFile("/habibi.mp3"));
     //Settings::resourcePath();
-    //player->setMedia(QUrl("qrc:/habibi.mp3"));
+    player->setMedia(QUrl("qrc:/habibi.mp3"));
     player->setVolume(50);
 
     /*

@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QUdpSocket>
+#include <QTcpSocket>
+#include <QNetworkSession>
+#include <QtNetwork>
+
 
 class StreamReceiver : public QObject
 {
@@ -11,11 +15,21 @@ public:
     explicit StreamReceiver(QObject *parent = 0);
 private:
     QUdpSocket *socket;
+    QTcpSocket *tcpSocket;
+    QString currentMessage;
+    QNetworkSession *networkSession;
+    quint16 blockSize;
 
 signals:
 
 public slots:
     void readyRead();
+    void doConnectTcp();
+    void requestNewFortune();
+    void readFortune();
+    void displayError(QAbstractSocket::SocketError socketError);
+    void sessionOpened();
+
 
 };
 
