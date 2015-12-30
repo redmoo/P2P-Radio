@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QDataStream>
 
+
 class ServerStreamer : public QObject
 {
     Q_OBJECT
@@ -26,8 +27,9 @@ private:
 signals:
 
 public slots:
-    void sessionOpened();
-    void sendFortune();
+    //void sessionOpened();
+    //void sendFortune();
+    void sendMessage();
 
 };
 

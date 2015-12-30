@@ -9,12 +9,12 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
+    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readMessage()));
     connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
                 this, SLOT(displayError(QAbstractSocket::SocketError)));
 
 
-    // find out IP addresses of this machine
+    /*// find out IP addresses of this machine
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
 
     tcpSocket = new QTcpSocket(this);
@@ -46,8 +46,50 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 
         qDebug() << "Opening network session.";
         networkSession->open();
+    }*/
+
+}
+
+QString getIPAddress()
+{
+    QString ipAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+    for (int i = 0; i < ipAddressesList.size(); ++i) {
+        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+            ipAddressesList.at(i).toIPv4Address()) {
+            ipAddress = ipAddressesList.at(i).toString();
+            break;
+        }
+    }
+    if (ipAddress.isEmpty())
+        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+    return ipAddress;
+}
+
+
+void StreamReceiver::newConnect(){
+    blockSize = 0;
+    //QString ipAddr = getIPAddress();
+    //qDebug() << "Connecting to host: " + ipAddr;
+    tcpSocket->abort();
+    tcpSocket->connectToHost(QHostAddress::LocalHost, 6666);
+}
+
+void StreamReceiver::readMessage(){
+    QDataStream in(tcpSocket);
+    in.setVersion(QDataStream::Qt_5_0);
+
+    if(blockSize == 0){
+        if(tcpSocket->bytesAvailable() < (int)sizeof(quint16)) return;
+
+        in >> blockSize;
     }
 
+    if(tcpSocket->bytesAvailable() < blockSize) return;
+
+    in >> message;
+
+    qDebug() << "Message: " << message;
 
 }
 
@@ -88,13 +130,13 @@ void StreamReceiver::doConnectTcp()
 
 }
 
-void StreamReceiver::requestNewFortune(){
+/*void StreamReceiver::requestNewFortune(){
     blockSize = 0;
     tcpSocket->abort();
     tcpSocket->connectToHost(QHostAddress::LocalHost, 4444);
-}
+}*/
 
-void StreamReceiver::readFortune(){
+/*void StreamReceiver::readFortune(){
     QDataStream in(tcpSocket);
     in.setVersion(QDataStream::Qt_5_0);
 
@@ -119,10 +161,12 @@ void StreamReceiver::readFortune(){
     currentMessage = nextFortune;
     qDebug() << "Message: " << currentMessage;
 
-}
+}*/
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 {
+    //qDebug() << tcpSocket->errorString (); // output an error message
+
     switch (socketError) {
     case QAbstractSocket::RemoteHostClosedError:
         qDebug() << "RemoteHostClosedError";
@@ -135,14 +179,14 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
                     "and check that the host name and port settings are correct.";
         break;
     default:
-        qDebug() << "The following error occurred: %1." + tcpSocket->errorString();
+        qDebug() << "The following error occurred: " + tcpSocket->errorString();
     }
 
 }
 
-void StreamReceiver::sessionOpened()
-{
-    // Save the used configuration
+/*void StreamReceiver::sessionOpened()
+{    // Save the used configuration
+
     QNetworkConfiguration config = networkSession->configuration();
     QString id;
     if (config.type() == QNetworkConfiguration::UserChoice)
@@ -158,4 +202,4 @@ void StreamReceiver::sessionOpened()
     qDebug() << "This examples requires that you run the Fortune Server example as well";
 
 
-}
+}*/

@@ -6,6 +6,8 @@
 #include <QTcpSocket>
 #include <QNetworkSession>
 #include <QtNetwork>
+#include <QNetworkInterface>
+
 
 
 class StreamReceiver : public QObject
@@ -16,7 +18,7 @@ public:
 private:
     QUdpSocket *socket;
     QTcpSocket *tcpSocket;
-    QString currentMessage;
+    QString message;
     QNetworkSession *networkSession;
     quint16 blockSize;
 
@@ -25,10 +27,12 @@ signals:
 public slots:
     void readyRead();
     void doConnectTcp();
-    void requestNewFortune();
-    void readFortune();
+    //void requestNewFortune();
+    //void readFortune();
     void displayError(QAbstractSocket::SocketError socketError);
-    void sessionOpened();
+    //void sessionOpened();
+    void newConnect();
+    void readMessage();
 
 
 };

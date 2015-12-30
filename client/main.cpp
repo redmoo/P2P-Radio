@@ -11,7 +11,9 @@ int main(int argc, char *argv[])
 
     StreamReceiver recv;
     //recv.doConnect();
-    recv.requestNewFortune();
+    //recv.requestNewFortune();
+
+    recv.newConnect();
 
 
     return a.exec();

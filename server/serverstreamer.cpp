@@ -6,8 +6,17 @@ ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
     socket = new QUdpSocket(this);
     socket->bind(QHostAddress::LocalHost, 1234);
 
+    tcpServer = new QTcpServer(this);
 
-    QNetworkConfigurationManager manager;
+    if (! tcpServer-> listen (QHostAddress :: LocalHost, 6666)){
+        // Monitor port 6666 of the local host, if the error output an error message and close the
+        qDebug () << tcpServer-> errorString ();
+        return;
+    }
+
+    connect (tcpServer, SIGNAL (newConnection ()), this, SLOT (sendMessage ()));
+
+    /*QNetworkConfigurationManager manager;
     if (manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired) {
        // Get saved network configuration
        QSettings settings(QSettings::UserScope, QLatin1String("QtProject"));
@@ -39,16 +48,53 @@ ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
                 << tr("You cannot kill time without injuring eternity.")
                 << tr("Computers are not intelligent. They only think they are.");
 
-       connect(tcpServer, SIGNAL(newConnection()), this, SLOT(sendFortune()));
+       connect(tcpServer, SIGNAL(newConnection()), this, SLOT(sendFortune()));*/
 
 }
+
 
 void ServerStreamer::write(QByteArray data)
 {
     socket->writeDatagram(data, QHostAddress::LocalHost, 1233);
 }
 
-void ServerStreamer::sessionOpened()
+
+void ServerStreamer::sendMessage()
+{
+    QByteArray block; // for temporarily storing the data to be sent
+
+    QDataStream out (& block, QIODevice :: WriteOnly);
+
+    // Use the data stream to write data
+
+    out.setVersion (QDataStream :: Qt_5_0);
+
+    // Set the data stream version, the client and server side use the same version
+
+    out << 2;
+
+    out << tr ("hello TCP!!!");
+
+    out.device () -> seek (0);
+
+    out << (quint16) (block.size () - sizeof (quint16));
+
+    QTcpSocket * clientConnection = tcpServer-> nextPendingConnection ();
+
+    // We have obtained sub-socket connection has been established
+
+    connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));
+
+    clientConnection-> write (block);
+
+    clientConnection-> disconnectFromHost ();
+
+    qDebug() << "send message successful!!!";
+
+    // Send data successfully, the display prompts
+}
+
+/*void ServerStreamer::sessionOpened()
 {
     // Save the used configuration
     if (networkSession) {
@@ -86,9 +132,9 @@ void ServerStreamer::sessionOpened()
         ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
     qDebug() << "Server is runing on " + ipAddress + " " + tcpServer->serverPort();
 
-}
+}*/
 
-void ServerStreamer::sendFortune()
+/*void ServerStreamer::sendFortune()
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -104,4 +150,5 @@ void ServerStreamer::sendFortune()
 
     clientConnection->write(block);
     clientConnection->disconnectFromHost();
-}
+}*/
+

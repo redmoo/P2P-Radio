@@ -11,9 +11,9 @@ int main(int argc, char *argv[])
 
 
     ServerStreamer stream;
-    stream.sendFortune();
+    //stream.sendFortune();
 
-    Player p;
+    //Player p;
 
 
     return a.exec();
