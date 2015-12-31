@@ -130,38 +130,6 @@ void StreamReceiver::doConnectTcp()
 
 }
 
-/*void StreamReceiver::requestNewFortune(){
-    blockSize = 0;
-    tcpSocket->abort();
-    tcpSocket->connectToHost(QHostAddress::LocalHost, 4444);
-}*/
-
-/*void StreamReceiver::readFortune(){
-    QDataStream in(tcpSocket);
-    in.setVersion(QDataStream::Qt_5_0);
-
-    if (blockSize == 0) {
-       if (tcpSocket->bytesAvailable() < (int)sizeof(quint16))
-           return;
-
-       in >> blockSize;
-    }
-
-    if (tcpSocket->bytesAvailable() < blockSize)
-       return;
-
-    QString nextFortune;
-    in >> nextFortune;
-
-    if (nextFortune == currentMessage) {
-       QTimer::singleShot(0, this, SLOT(requestNewFortune()));
-       return;
-    }
-
-    currentMessage = nextFortune;
-    qDebug() << "Message: " << currentMessage;
-
-}*/
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 {
