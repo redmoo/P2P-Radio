@@ -71,13 +71,13 @@ void ServerStreamer::sendMessage()
 
     // Set the data stream version, the client and server side use the same version
 
-    out << 2;
+    out << (quint16)0;
 
     out << tr ("hello TCP!!!");
 
     out.device () -> seek (0);
 
-    out << (quint16) (block.size () - sizeof (quint16));
+    out << (quint16)(block.size () - sizeof(quint16));
 
     QTcpSocket * clientConnection = tcpServer-> nextPendingConnection ();
 
@@ -87,7 +87,7 @@ void ServerStreamer::sendMessage()
 
     clientConnection-> write (block);
 
-    clientConnection-> disconnectFromHost ();
+    clientConnection-> disconnectFromHost();
 
     qDebug() << "send message successful!!!";
 

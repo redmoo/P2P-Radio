@@ -20,7 +20,7 @@ public:
 private:
     QUdpSocket *socket;
     QTcpServer *tcpServer;
-    QStringList fortunes;
+    QStringList messages;
     QNetworkSession *networkSession;
 
 
