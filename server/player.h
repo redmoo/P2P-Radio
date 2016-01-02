@@ -17,7 +17,7 @@ private:
     QMediaPlayer *player;
 
 signals:
-
+    void bufferSend(QByteArray);
 public slots:
     void processBuffer(QAudioBuffer);
 };

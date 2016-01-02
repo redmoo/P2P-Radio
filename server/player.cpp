@@ -9,9 +9,8 @@ Player::Player(QObject *parent) : QObject(parent)
     //player->setMedia(QUrl::fromLocalFile("/habibi.mp3"));
     //Settings::resourcePath();
     player->setMedia(QUrl("qrc:/habibi.mp3"));
-    player->setVolume(50);
+    player->setVolume(0);
 
-    /*
     QAudioProbe *probe = new QAudioProbe;
 
     // ... configure the audio recorder (skipped)
@@ -19,7 +18,6 @@ Player::Player(QObject *parent) : QObject(parent)
     connect(probe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
 
     probe->setSource(player); // Returns true, hopefully.
-    */
 
 
     player->play();
@@ -28,7 +26,5 @@ Player::Player(QObject *parent) : QObject(parent)
 qint64 microsec=-1;
 void Player::processBuffer(QAudioBuffer abuff)
 {
-    if(abuff.startTime() > microsec){
-        microsec = abuff.startTime() + abuff.duration();
-    }
+    emit bufferSend(QByteArray((const char*)abuff.constData(), abuff.byteCount()));
 }

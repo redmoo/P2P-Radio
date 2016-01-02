@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
+QT		 += multimedia
 
 TARGET = common
 TEMPLATE = lib
@@ -14,7 +15,8 @@ DEFINES += COMMON_LIBRARY
 SOURCES += common.cpp
 
 HEADERS += common.h\
-        common_global.h
+        common_global.h \
+    client_info.h
 
 unix {
     target.path = /usr/lib

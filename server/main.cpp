@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
     ServerStreamer stream;
     //stream.sendFortune();
 
-    //Player p;
+    Player p;
+    QObject::connect(&p, SIGNAL(bufferSend(QByteArray)), &stream, SLOT(write(QByteArray)));
 
 
     return a.exec();
