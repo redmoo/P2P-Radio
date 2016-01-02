@@ -19,7 +19,7 @@ void StreamReceiver::init()
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
-    QAudioOutput *audio = new QAudioOutput((new Common())->getFormat(), this);
+    QAudioOutput *audio = new QAudioOutput(Common::getFormat(), this);
     audio->setBufferSize(1024*10);
     playbuff = audio->start();
 
@@ -114,6 +114,12 @@ void StreamReceiver::readyRead(){
 
     playbuff->write(buffer.data(), buffer.size());
 
+    // Pass to clients
+    foreach(ClientInfo c, clients){
+        socket->writeDatagram(buffer,c.address,c.port);
+    }
+
+
     qDebug() << "Message:" << buffer << endl;
 }
 
@@ -183,3 +189,7 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 
 
 }*/
+
+void StreamReceiver::addClient(ClientInfo c){
+    clients << c;
+}

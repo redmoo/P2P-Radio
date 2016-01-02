@@ -24,7 +24,9 @@ void ServerStreamer::init()
 
 void ServerStreamer::write(QByteArray data)
 {
-    socket->writeDatagram(data, QHostAddress::LocalHost, 1233);
+    foreach(ClientInfo c, clients){
+        socket->writeDatagram(data, c.address, c.port);
+    }
 }
 
 
@@ -115,3 +117,6 @@ void ServerStreamer::sendMessage()
     clientConnection->disconnectFromHost();
 }*/
 
+void ServerStreamer::addClient(ClientInfo c){
+    clients << c;
+}

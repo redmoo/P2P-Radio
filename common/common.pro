@@ -12,11 +12,12 @@ TEMPLATE = lib
 
 DEFINES += COMMON_LIBRARY
 
-SOURCES += common.cpp
+SOURCES += common.cpp \
+    clientinfo.cpp
 
 HEADERS += common.h\
         common_global.h \
-    client_info.h
+    clientinfo.h
 
 unix {
     target.path = /usr/lib

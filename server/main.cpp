@@ -2,14 +2,18 @@
 #include <QApplication>
 #include "serverstreamer.h"
 #include "player.h"
+#include "clientinfo.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
     ServerStreamer *stream = new ServerStreamer;
-    MainWindow w(stream);
 
+    ClientInfo client(QHostAddress::LocalHost, 1233);
+    stream->addClient(client);
+
+    MainWindow w(stream);
     //stream.sendFortune();
 
     Player p;

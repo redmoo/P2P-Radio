@@ -9,7 +9,7 @@ class COMMONSHARED_EXPORT Common
 
 public:
     //Common();
-    QAudioFormat getFormat();
+    static QAudioFormat getFormat();
 };
 
 #endif // COMMON_H

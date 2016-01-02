@@ -8,6 +8,7 @@
 #include <QtNetwork>
 #include <QNetworkInterface>
 #include "common.h"
+#include "clientinfo.h"
 
 
 
@@ -18,6 +19,7 @@ public:
     explicit StreamReceiver(QObject *parent = 0);
     void init();
     void newConnect();
+    void addClient(ClientInfo);
 
 private slots:
     void readyRead();
@@ -35,6 +37,7 @@ private:
     QNetworkSession *networkSession;
     quint16 blockSize;
     QIODevice *playbuff;
+    QList<ClientInfo> clients;
 
 
 };

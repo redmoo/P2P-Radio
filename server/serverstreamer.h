@@ -10,7 +10,7 @@
 #include <QSettings>
 #include <QDataStream>
 #include <QAudioBuffer>
-
+#include "clientinfo.h"
 
 class ServerStreamer : public QObject
 {
@@ -18,6 +18,7 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
+    void addClient(ClientInfo);
 
 signals:
 
@@ -32,6 +33,7 @@ private:
     QTcpServer *tcpServer;
     QStringList messages;
     QNetworkSession *networkSession;
+    QList<ClientInfo> clients;
 };
 
 #endif // SERVERSTREAMER_H
