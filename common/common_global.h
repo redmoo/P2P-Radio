@@ -1,7 +1,7 @@
 #ifndef COMMON_GLOBAL_H
 #define COMMON_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QtGlobal>
 
 #if defined(COMMON_LIBRARY)
 #  define COMMONSHARED_EXPORT Q_DECL_EXPORT

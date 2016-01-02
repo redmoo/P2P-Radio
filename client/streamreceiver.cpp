@@ -99,7 +99,7 @@ void StreamReceiver::readMessage(){
 
     in >> message;
 
-    qDebug() << "Message: " + message;
+    qDebug() << "Message: " + message; //TODO: message prikazi v connectionStatus
 
 }
 
