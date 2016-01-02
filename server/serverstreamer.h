@@ -17,12 +17,8 @@ class ServerStreamer : public QObject
     Q_OBJECT
 public:
     explicit ServerStreamer(QObject *parent = 0);
-private:
-    QUdpSocket *socket;
-    QTcpServer *tcpServer;
-    QStringList messages;
-    QNetworkSession *networkSession;
-
+    void init();
+    void write(QByteArray data);
 
 signals:
 
@@ -32,6 +28,11 @@ public slots:
     void write(QByteArray data);
     void sendMessage();
 
+private:
+    QUdpSocket *socket;
+    QTcpServer *tcpServer;
+    QStringList messages;
+    QNetworkSession *networkSession;
 };
 
 #endif // SERVERSTREAMER_H

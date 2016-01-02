@@ -16,7 +16,18 @@ class StreamReceiver : public QObject
     Q_OBJECT
 public:
     explicit StreamReceiver(QObject *parent = 0);
-    QList<QHostAddress> clients;
+    void init();
+    void newConnect();
+
+private slots:
+    void readyRead();
+    void displayError(QAbstractSocket::SocketError socketError);
+    void readMessage();
+    //void doConnectTcp();
+    //void requestNewFortune();
+    //void readFortune();
+    //void sessionOpened();
+
 private:
     QUdpSocket *socket;
     QTcpSocket *tcpSocket;
@@ -24,18 +35,6 @@ private:
     QNetworkSession *networkSession;
     quint16 blockSize;
     QIODevice *playbuff;
-
-signals:
-
-public slots:
-    void readyRead();
-    void doConnectTcp();
-    //void requestNewFortune();
-    //void readFortune();
-    void displayError(QAbstractSocket::SocketError socketError);
-    //void sessionOpened();
-    void newConnect();
-    void readMessage();
 
 
 };

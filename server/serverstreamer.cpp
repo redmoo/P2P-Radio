@@ -3,6 +3,10 @@
 
 ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
 {
+}
+
+void ServerStreamer::init()
+{
     socket = new QUdpSocket(this);
     socket->bind(QHostAddress::LocalHost, 1234);
 
@@ -14,9 +18,7 @@ ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
         return;
     }
 
-    connect (tcpServer, SIGNAL (newConnection ()), this, SLOT (sendMessage ()));
-
-
+    connect (tcpServer, SIGNAL (newConnection ()), this, SLOT (sendMessage ())); // TODO: change to NEW style
 }
 
 
