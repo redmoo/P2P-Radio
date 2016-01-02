@@ -18,7 +18,6 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
-    void write(QByteArray data);
 
 signals:
 
