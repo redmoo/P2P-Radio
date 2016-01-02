@@ -15,6 +15,7 @@ public:
 
 signals:
     void bufferSend(QByteArray);
+
 public slots:
     void processBuffer(QAudioBuffer);
 

@@ -20,7 +20,7 @@ void StreamReceiver::init()
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
-    QAudioOutput *audio = new QAudioOutput(Common::getFormat(), this);
+    auto *audio = new QAudioOutput(Common::getFormat(), this);
     audio->setBufferSize(1024*10);
     playbuff = audio->start();
 
@@ -100,7 +100,7 @@ void StreamReceiver::readMessage(){
     in >> message;
 
     qDebug() << "Message: " + message;
-
+    emit(messageChanged(message));
 }
 
 void StreamReceiver::readyRead(){

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>522</width>
-    <height>397</height>
+    <width>510</width>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,17 @@
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
-     <item row="2" column="0">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
+     <item row="1" column="0" colspan="2">
+      <widget class="QPushButton" name="receiveButton">
+       <property name="text">
+        <string>CONNECT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="labelStatus">
        <property name="text">
         <string>Connection Status</string>
@@ -34,7 +44,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="connectionStatus">
        <property name="font">
         <font>
@@ -53,23 +63,35 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QPushButton" name="receiveButton">
+     <item row="4" column="0">
+      <widget class="QLabel" name="messageLabel">
        <property name="text">
-        <string>CONNECT</string>
+        <string>Message:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="messageDisplay">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
+   <zorder>formLayoutWidget</zorder>
+   <zorder>textEdit</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>522</width>
-     <height>31</height>
+     <width>510</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

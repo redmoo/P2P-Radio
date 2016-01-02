@@ -1,6 +1,9 @@
 #ifndef SERVERSTREAMER_H
 #define SERVERSTREAMER_H
 
+#include "clientinfo.h"
+#include "player.h"
+
 #include <QObject>
 #include <QUdpSocket>
 #include <QTcpServer>
@@ -10,7 +13,7 @@
 #include <QSettings>
 #include <QDataStream>
 #include <QAudioBuffer>
-#include "clientinfo.h"
+
 
 class ServerStreamer : public QObject
 {
@@ -33,7 +36,8 @@ private:
     QTcpServer *tcpServer;
     QStringList messages;
     QNetworkSession *networkSession;
-    QList<ClientInfo> clients;
+    QList<ClientInfo> clients; // ptr? const ref?
+    Player *player;
 };
 
 #endif // SERVERSTREAMER_H

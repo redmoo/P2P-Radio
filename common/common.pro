@@ -4,20 +4,20 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
-QT		 += multimedia
+QT += gui # +??
+QT += multimedia
 
-TARGET = common
+#TARGET = common
 TEMPLATE = lib
-
-DEFINES += COMMON_LIBRARY
+#CONFIG = staticlib
+#DEFINES += COMMON_LIBRARY
 
 SOURCES += common.cpp \
-    clientinfo.cpp
+           clientinfo.cpp
 
-HEADERS += common.h\
-        common_global.h \
-    clientinfo.h
+HEADERS += common.h \
+           common_global.h \
+           clientinfo.h
 
 unix {
     target.path = /usr/lib

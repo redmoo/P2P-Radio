@@ -22,6 +22,9 @@ public:
     void addClient(ClientInfo);
     QString message;
 
+signals:
+    void messageChanged(QString);
+
 private slots:
     void readyRead();
     void displayError(QAbstractSocket::SocketError socketError);

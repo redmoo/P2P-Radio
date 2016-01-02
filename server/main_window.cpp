@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "ui_main_window.h"
 
+
 MainWindow::MainWindow(ServerStreamer *s, QWidget *parent) :
     stream(s),
     QMainWindow(parent),

@@ -16,6 +16,9 @@ public:
     explicit MainWindow(StreamReceiver *recv, QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void updateMessageDisplay(QString message);
+
 private slots:
     void on_receiveButton_clicked();
 

@@ -1,8 +1,8 @@
 #include "common.h"
 
-
-QAudioFormat Common::getFormat(){
-    QAudioFormat format;
+QAudioFormat Common::getFormat()
+{
+    static QAudioFormat format;
     // Set up the format, eg.
     format.setSampleRate(44100);
     format.setChannelCount(2);

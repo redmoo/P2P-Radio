@@ -13,6 +13,8 @@ MainWindow::MainWindow(StreamReceiver *recv, QWidget *parent) :
 
     //reciever.doConnect();
     //reciever.requestNewFortune();
+
+    connect(receiver, &StreamReceiver::messageChanged, this, &MainWindow::updateMessageDisplay);
 }
 
 MainWindow::~MainWindow()
@@ -20,10 +22,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::updateMessageDisplay(QString message)
+{
+    ui->messageDisplay->setText(message);
+}
+
 void MainWindow::on_receiveButton_clicked()
 {
     ui->receiveButton->setEnabled(false);
     ui->connectionStatus->setText("Connecting to server...");
     receiver->newConnect();
-
 }

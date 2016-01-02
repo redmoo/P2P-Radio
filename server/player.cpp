@@ -15,7 +15,7 @@ Player::Player(QObject *parent) : QObject(parent)
 
     // ... configure the audio recorder (skipped)
 
-    connect(probe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
+    connect(probe, &QAudioProbe::audioBufferProbed, this, &Player::processBuffer);
 
     probe->setSource(player); // Returns true, hopefully.
 

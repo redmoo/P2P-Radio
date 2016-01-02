@@ -18,9 +18,16 @@ void ServerStreamer::init()
         return;
     }
 
-    connect (tcpServer, SIGNAL (newConnection ()), this, SLOT (sendMessage ())); // TODO: change to NEW style
-}
+    connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::sendMessage);
 
+    // TODO: find a better place to do these stuffers below!!!!
+
+    ClientInfo client(QHostAddress::LocalHost, 1233);
+    addClient(client);
+
+    player = new Player;
+    connect(player, &Player::bufferSend, this, &ServerStreamer::write);
+}
 
 void ServerStreamer::write(QByteArray data)
 {
@@ -28,7 +35,6 @@ void ServerStreamer::write(QByteArray data)
         socket->writeDatagram(data, c.address, c.port);
     }
 }
-
 
 void ServerStreamer::sendMessage()
 {
@@ -46,11 +52,12 @@ void ServerStreamer::sendMessage()
     out.device () -> seek (0);
     out << (quint16)(block.size () - sizeof(quint16));
 
-    QTcpSocket * clientConnection = tcpServer-> nextPendingConnection ();
+    QTcpSocket * clientConnection = tcpServer-> nextPendingConnection (); // a se neb to kje shranjeval pol k bo vec clientov?
 
     // We have obtained sub-socket connection has been established
 
-    connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));
+    connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
+
     clientConnection-> write (block);
     clientConnection-> disconnectFromHost();
 
