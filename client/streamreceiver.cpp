@@ -103,7 +103,8 @@ void StreamReceiver::readMessage(){
     emit(messageChanged(message));
 }
 
-void StreamReceiver::readyRead(){
+void StreamReceiver::readyRead()
+{
     qDebug() << "Read" << endl;
     QByteArray buffer;
     buffer.resize(socket->pendingDatagramSize());
@@ -119,7 +120,6 @@ void StreamReceiver::readyRead(){
     foreach(ClientInfo c, clients){
         socket->writeDatagram(buffer,c.address,c.port);
     }
-
 
     qDebug() << "Message:" << buffer << endl;
 }
