@@ -23,5 +23,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_receiveButton_clicked()
 {
     ui->receiveButton->setEnabled(false);
+    ui->connectionStatus->setText("Connecting to server...");
     receiver->newConnect();
+
 }
