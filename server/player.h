@@ -13,13 +13,14 @@ class Player : public QObject
 public:
     explicit Player(QObject *parent = 0);
 
-private:
-    QMediaPlayer *player;
-
 signals:
 
 public slots:
     void processBuffer(QAudioBuffer);
+
+private:
+    QMediaPlayer *player;
+
 };
 
 #endif // PLAYER_H

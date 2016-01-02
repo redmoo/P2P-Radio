@@ -3,16 +3,19 @@
 
 StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 {
+}
+
+void StreamReceiver::init()
+{
     socket = new QUdpSocket(this);
     socket->bind(QHostAddress::LocalHost, 1233);
 
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
 
     tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readMessage()));
-    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-                this, SLOT(displayError(QAbstractSocket::SocketError)));
 
+    connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
+    connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
     /*// find out IP addresses of this machine
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
@@ -66,7 +69,6 @@ QString getIPAddress()
     return ipAddress;
 }
 
-
 void StreamReceiver::newConnect(){
     blockSize = 0;
     //QString ipAddr = getIPAddress();
@@ -106,11 +108,12 @@ void StreamReceiver::readyRead(){
     qDebug() << "Message:" << buffer << endl;
 }
 
+/*
 void StreamReceiver::doConnectTcp()
 {
     tcpSocket = new QTcpSocket(this);
 
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readyReadTcpData()));
+    //connect(tcpSocket, &QIODevice::readyRead, this, SLOT(readyReadTcpData())); ???
 
     tcpSocket->connectToHost(QHostAddress::LocalHost, 4444);
 
@@ -129,7 +132,7 @@ void StreamReceiver::doConnectTcp()
     }
 
 }
-
+*/
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 {

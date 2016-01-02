@@ -1,20 +1,17 @@
 #include "main_window.h"
 #include <QApplication>
 #include "serverstreamer.h"
-#include "player.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //MainWindow w;
-    //w.show();
 
+    ServerStreamer *stream = new ServerStreamer;
+    MainWindow w(stream);
 
-    ServerStreamer stream;
-    //stream.sendFortune();
+    w.show();
 
-    //Player p;
-
+    //stream.sendFortune(); ??
 
     return a.exec();
 }
