@@ -15,6 +15,7 @@ void StreamReceiver::init()
     tcpSocket = new QTcpSocket(this);
 
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
+
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
     /*// find out IP addresses of this machine

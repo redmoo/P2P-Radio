@@ -17,11 +17,13 @@ public:
     explicit StreamReceiver(QObject *parent = 0);
     void init();
     void newConnect();
+    QString message;
 
 private slots:
     void readyRead();
     void displayError(QAbstractSocket::SocketError socketError);
     void readMessage();
+    //QString readMessage();
     //void doConnectTcp();
     //void requestNewFortune();
     //void readFortune();
@@ -30,7 +32,7 @@ private slots:
 private:
     QUdpSocket *socket;
     QTcpSocket *tcpSocket;
-    QString message;
+    //QString message;
     QNetworkSession *networkSession;
     quint16 blockSize;
 

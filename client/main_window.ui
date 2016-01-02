@@ -6,26 +6,61 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>522</width>
+    <height>397</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="receiveButton">
+   <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>381</width>
-      <height>131</height>
+      <y>0</y>
+      <width>491</width>
+      <height>301</height>
      </rect>
     </property>
-    <property name="text">
-     <string>START YO!</string>
-    </property>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelStatus">
+       <property name="text">
+        <string>Connection Status</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="connectionStatus">
+       <property name="font">
+        <font>
+         <family>Consolas</family>
+         <kerning>false</kerning>
+        </font>
+       </property>
+       <property name="text">
+        <string>Status</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QPushButton" name="receiveButton">
+       <property name="text">
+        <string>CONNECT</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -33,8 +68,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
-     <height>21</height>
+     <width>522</width>
+     <height>31</height>
     </rect>
    </property>
   </widget>
