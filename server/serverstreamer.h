@@ -9,6 +9,7 @@
 #include <QNetworkConfigurationManager>
 #include <QSettings>
 #include <QDataStream>
+#include <QAudioBuffer>
 
 
 class ServerStreamer : public QObject
@@ -17,13 +18,13 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
-    void write(QByteArray data);
 
 signals:
 
 public slots:
     //void sessionOpened();
     //void sendFortune();
+    void write(QByteArray data);
     void sendMessage();
 
 private:

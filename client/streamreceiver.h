@@ -7,6 +7,7 @@
 #include <QNetworkSession>
 #include <QtNetwork>
 #include <QNetworkInterface>
+#include "common.h"
 
 
 
@@ -35,6 +36,8 @@ private:
     //QString message;
     QNetworkSession *networkSession;
     quint16 blockSize;
+    QIODevice *playbuff;
+
 
 };
 

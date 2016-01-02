@@ -2,12 +2,14 @@
 #define COMMON_H
 
 #include "common_global.h"
+#include <QAudioFormat>
 
 class COMMONSHARED_EXPORT Common
 {
 
 public:
-    Common();
+    //Common();
+    QAudioFormat getFormat();
 };
 
 #endif // COMMON_H

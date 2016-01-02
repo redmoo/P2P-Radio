@@ -14,7 +14,7 @@ public:
     explicit Player(QObject *parent = 0);
 
 signals:
-
+    void bufferSend(QByteArray);
 public slots:
     void processBuffer(QAudioBuffer);
 

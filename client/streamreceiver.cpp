@@ -1,4 +1,6 @@
 #include "streamreceiver.h"
+#include "common.h"
+#include <QAudioOutput>
 
 
 StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
@@ -17,6 +19,11 @@ void StreamReceiver::init()
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
+
+    QAudioOutput *audio = new QAudioOutput((new Common())->getFormat(), this);
+    audio->setBufferSize(1024*10);
+    playbuff = audio->start();
+
 
     /*// find out IP addresses of this machine
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
@@ -105,6 +112,8 @@ void StreamReceiver::readyRead(){
     quint16 serverPort;
 
     socket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
+
+    playbuff->write(buffer.data(), buffer.size());
 
     qDebug() << "Message:" << buffer << endl;
 }
