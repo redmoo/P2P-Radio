@@ -24,6 +24,8 @@ public:
 
 signals:
     void messageChanged(QString);
+    void connectionStatusChanged(QString);
+    void activityLogChanged(QString);
 
 private slots:
     void readyRead();
@@ -43,6 +45,8 @@ private:
     quint16 blockSize;
     QIODevice *playbuff;
     QList<ClientInfo> clients;
+    QHostAddress serverAddress;
+    qint16 serverPort;
 
 
 };

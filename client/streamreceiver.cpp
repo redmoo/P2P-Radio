@@ -15,7 +15,8 @@ void StreamReceiver::init()
     connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
 
     tcpSocket = new QTcpSocket(this);
-
+    serverAddress = QHostAddress::LocalHost;
+    serverPort = 6666;
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
@@ -82,7 +83,9 @@ void StreamReceiver::newConnect(){
     //QString ipAddr = getIPAddress();
     //qDebug() << "Connecting to host: " + ipAddr;
     tcpSocket->abort();
-    tcpSocket->connectToHost(QHostAddress::LocalHost, 6666);
+    tcpSocket->connectToHost(serverAddress, serverPort);
+
+    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
 }
 
 void StreamReceiver::readMessage(){
@@ -153,21 +156,25 @@ void StreamReceiver::doConnectTcp()
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 {
     //qDebug() << tcpSocket->errorString (); // output an error message
-
+    QString connStatus = "";
     switch (socketError) {
     case QAbstractSocket::RemoteHostClosedError:
-        qDebug() << "RemoteHostClosedError";
+        connStatus = "RemoteHostClosedError";
+        connStatus = "Remote Host Closed";
         break;
     case QAbstractSocket::HostNotFoundError:
-        qDebug() << "The host was not found. Please check the host name and port settings.";
+        connStatus = "The host was not found. Please check the host name and port settings.";
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        qDebug() << "The connection was refused by the peer. Make sure the fortune server is running,"
-                    "and check that the host name and port settings are correct.";
+        connStatus = "The connection was refused by the peer. Make sure the fortune server is running,"
+                     "and check that the host name and port settings are correct.";
         break;
     default:
-        qDebug() << "The following error occurred: " + tcpSocket->errorString();
+        connStatus = "The following error occurred: " + tcpSocket->errorString();
     }
+    qDebug() << connStatus;
+    emit(connectionStatusChanged(connStatus));
+    emit(activityLogChanged("Connection closed " + connStatus ));
 
 }
 
