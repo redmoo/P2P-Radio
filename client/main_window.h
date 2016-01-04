@@ -20,6 +20,7 @@ public slots:
     void updateMessageDisplay(QString message);
     void updateConnectionStatusDisplay(QString status);
     void updateActivityLogDisplay(QString activity);
+    void updateConnectButton(bool toggle);
 
 private slots:
     void on_receiveButton_clicked();

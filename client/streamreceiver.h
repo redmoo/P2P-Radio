@@ -26,6 +26,7 @@ signals:
     void messageChanged(QString);
     void connectionStatusChanged(QString);
     void activityLogChanged(QString);
+    void connectButtonToggle(bool);
 
 private slots:
     void readyRead();

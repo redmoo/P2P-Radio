@@ -17,6 +17,7 @@ MainWindow::MainWindow(StreamReceiver *recv, QWidget *parent) :
     connect(receiver, &StreamReceiver::messageChanged, this, &MainWindow::updateMessageDisplay);
     connect(receiver, &StreamReceiver::connectionStatusChanged, this, &MainWindow::updateConnectionStatusDisplay);
     connect(receiver, &StreamReceiver::activityLogChanged, this, &MainWindow::updateActivityLogDisplay);
+    connect(receiver, &StreamReceiver::connectButtonToggle, this, &MainWindow::updateConnectButton);
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +40,10 @@ void MainWindow::updateActivityLogDisplay(QString activity)
     ui->activityDisplay->appendPlainText("--- " + activity + "\r\n");
 }
 
+void MainWindow::updateConnectButton(bool toggle)
+{
+    ui->receiveButton->setEnabled(toggle);
+}
 
 void MainWindow::on_receiveButton_clicked()
 {

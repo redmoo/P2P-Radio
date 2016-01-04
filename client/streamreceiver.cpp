@@ -15,6 +15,7 @@ void StreamReceiver::init()
     connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
 
     tcpSocket = new QTcpSocket(this);
+
     serverAddress = QHostAddress::LocalHost;
     serverPort = 6666;
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
@@ -175,6 +176,7 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
     qDebug() << connStatus;
     emit(connectionStatusChanged(connStatus));
     emit(activityLogChanged("Connection closed " + connStatus ));
+    emit(connectButtonToggle(true));
 
 }
 
