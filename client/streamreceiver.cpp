@@ -81,12 +81,35 @@ QString getIPAddress()
 
 void StreamReceiver::newConnect(){
     blockSize = 0;
-    //QString ipAddr = getIPAddress();
-    //qDebug() << "Connecting to host: " + ipAddr;
+
     tcpSocket->abort();
     tcpSocket->connectToHost(serverAddress, serverPort);
 
     emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
+
+    if(tcpSocket->waitForConnected(3000)){
+        //Connection successful
+        emit(connectionStatusChanged("Connected to server"));
+        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + serverPort));
+
+        QByteArray block;
+        QDataStream out (& block, QIODevice :: WriteOnly);
+
+        out.setVersion (QDataStream :: Qt_5_0);
+
+        out << (quint16)0;
+        out << tr ("I am client");
+        out.device () -> seek (0);
+        out << (quint16)(block.size () - sizeof(quint16));
+
+        tcpSocket->write(block);
+
+    }else{
+        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + serverPort));
+        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + serverPort));
+    }
+
+    //emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
 }
 
 void StreamReceiver::readMessage(){
