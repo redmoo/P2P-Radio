@@ -23,9 +23,6 @@ void ServerStreamer::init()
 
     // TODO: find a better place to do these stuffers below!!!!
 
-    //auto *client = new ClientInfo(QHostAddress::LocalHost, 1233);
-    //addClient(client);
-
     //player = new Player;
     //connect(player, &Player::bufferSend, this, &ServerStreamer::write);
 }
@@ -52,12 +49,18 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
 
 void ServerStreamer::clientDisconnected()
 {
-    for (int i = 0; i < clients.length(); i++) // TODO: iterator k ne rab pol kopirat... linked list!
-    {
-        // TODO: WHY THE FUCK isOpen RETURNS TRUE WHEN SOCKET ID IS -1!!!! WHAT THE FUCK OBAMA
-        qDebug() << "DC:" << clients[i]->connection->socketDescriptor() << clients[i]->connection->isOpen();
+    QMutableListIterator<Common::ClientInfo *> iterator(clients);
 
-        if (clients[i]->connection->socketDescriptor() == -1) clients.removeAt(i);
+    while(iterator.hasNext())
+    {
+        auto c = iterator.next();
+        qDebug() << "DC:" << c->connection->socketDescriptor() << c->connection->isOpen() << c->connection->state();
+
+        if (c->connection->state() == QAbstractSocket::UnconnectedState)
+        {
+            c->connection->close();
+            iterator.remove();
+        }
         // TODO: kle nardis prevezavo povezav med klienti in dolocs od kje kdo posilja, k en linked list? mogoce se kr to res ponuca...
     }
 
