@@ -12,6 +12,7 @@ class COMMONSHARED_EXPORT Common
 
 public:
 
+//#pragma pack(push, 1)
     struct ClientInfo
     {
         ClientInfo(QTcpSocket *c) : connection(c)
@@ -19,21 +20,65 @@ public:
             ID = c->socketDescriptor();
         }
 
+        QByteArray serialize()
+        {
+            QByteArray byteArray;
+
+            QDataStream stream(&byteArray, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream << ID
+                   << address
+                   << port;
+
+            return byteArray;
+        }
+
+        void deserialize(const QByteArray& byteArray)
+        {
+            QDataStream stream(byteArray);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream >> ID
+                   >> address
+                   >> port;
+        }
+
+        int ID;
         QTcpSocket *connection;
         QHostAddress address;
         quint16 port;
-        int ID;
     };
+//#pragma pack(pop)
 
     struct DataPacket // alignment?
     {
-        /*DataPacket(char d[], unsigned int id) : ID(id)
-        {
-            data = d;
-        }*/
+        DataPacket(unsigned int id, QByteArray qba) : ID(id), data(qba) {}
 
-        char data[512];
+        QByteArray serialize()
+        {
+            QByteArray byteArray;
+
+            QDataStream stream(&byteArray, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream << ID
+                   << data;
+
+            return byteArray;
+        }
+
+        void deserialize(const QByteArray& byteArray)
+        {
+            QDataStream stream(byteArray);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream >> ID
+                   >> data;
+        }
+
         unsigned int ID;
+        QByteArray data;
     };
 
     static QAudioFormat getFormat();
