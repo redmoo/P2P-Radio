@@ -79,7 +79,8 @@ QString getIPAddress()
     return ipAddress;
 }
 
-void StreamReceiver::newConnect(){
+void StreamReceiver::newConnect()
+{
     blockSize = 0;
 
     tcpSocket->abort();
@@ -112,21 +113,24 @@ void StreamReceiver::newConnect(){
     //emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
 }
 
-void StreamReceiver::readMessage(){
+void StreamReceiver::readMessage()
+{
     QDataStream in(tcpSocket);
     in.setVersion(QDataStream::Qt_5_0);
 
     if(blockSize == 0){
         if(tcpSocket->bytesAvailable() < (int)sizeof(quint16)) return;
-
         in >> blockSize;
     }
 
     if(tcpSocket->bytesAvailable() < blockSize) return;
+    blockSize = 0;
 
+    QString message;
     in >> message;
 
-    qDebug() << "Message: " + message;
+    qDebug() << "Message (readMessage()): " + message;
+
     emit(messageChanged(message));
 }
 
@@ -144,11 +148,11 @@ void StreamReceiver::readyRead()
     playbuff->write(buffer.data(), buffer.size());
 
     // Pass to clients
-    foreach(ClientInfo c, clients){
-        socket->writeDatagram(buffer,c.address,c.port);
+    foreach(Common::ClientInfo *c, clients){
+        socket->writeDatagram(buffer, c->address, c->port);
     }
 
-    qDebug() << "Message:" << buffer << endl;
+    qDebug() << "Message (readyRead()):" << buffer << endl;
 }
 
 /*
@@ -183,14 +187,14 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
     QString connStatus = "";
     switch (socketError) {
     case QAbstractSocket::RemoteHostClosedError:
-        connStatus = "RemoteHostClosedError";
-        connStatus = "Remote Host Closed";
+        //connStatus = "RemoteHostClosedError";
+        connStatus = "Remote Host Closed"; // TODO: pogrunti zakaj se to zgodi ce se odpre server pred clientom
         break;
     case QAbstractSocket::HostNotFoundError:
         connStatus = "The host was not found. Please check the host name and port settings.";
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        connStatus = "The connection was refused by the peer. Make sure the fortune server is running,"
+        connStatus = "The connection was refused by the peer. Make sure the server is running,"
                      "and check that the host name and port settings are correct.";
         break;
     default:
@@ -223,6 +227,6 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 
 }*/
 
-void StreamReceiver::addClient(ClientInfo c){
+void StreamReceiver::addClient(Common::ClientInfo *c){
     clients << c;
 }

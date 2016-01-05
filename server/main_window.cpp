@@ -11,9 +11,21 @@ MainWindow::MainWindow(ServerStreamer *s, QWidget *parent) :
     this->setWindowTitle("P2P Master");
 
     stream->init();
+
+    connect(stream, &ServerStreamer::clientCountChanged, this, &MainWindow::updateClientCount);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_pingCLientsButton_clicked()
+{
+    stream->sendMessage();
+}
+
+void MainWindow::updateClientCount(int count)
+{
+    ui->numConnections->setText(QString::number(count));
 }

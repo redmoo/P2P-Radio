@@ -1,7 +1,7 @@
 #ifndef SERVERSTREAMER_H
 #define SERVERSTREAMER_H
 
-#include "clientinfo.h"
+#include "common.h"
 #include "player.h"
 
 #include <QObject>
@@ -18,25 +18,32 @@
 class ServerStreamer : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
-    void addClient(ClientInfo);
+    void sendMessage();
+
+private:
+
+    void addClient(Common::ClientInfo *); // TODO: namespace!!
 
 signals:
+    void clientCountChanged(int);
 
-public slots:
+private slots:
+    void clientConnected();
+    void clientDisconnected();
     //void sessionOpened();
     //void sendFortune();
     void write(QByteArray data);
-    void sendMessage();
 
 private:
     QUdpSocket *socket;
     QTcpServer *tcpServer;
     QStringList messages;
     QNetworkSession *networkSession;
-    QList<ClientInfo> clients; // ptr? const ref?
+    QList<Common::ClientInfo *> clients;
     Player *player;
 };
 

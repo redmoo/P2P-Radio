@@ -16,6 +16,10 @@ public:
     explicit MainWindow(ServerStreamer *stream, QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void on_pingCLientsButton_clicked();
+    void updateClientCount(int);
+
 private:
     Ui::MainWindow *ui;
     ServerStreamer *stream;

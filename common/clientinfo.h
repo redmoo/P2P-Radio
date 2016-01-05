@@ -12,6 +12,6 @@ public:
     QHostAddress address;
     quint16 port;
 
-}; // TODO: struct?
+}; // TODO: struct? yes yes :)
 
 #endif // CLIENTINFO_H

@@ -1,4 +1,5 @@
 #include "serverstreamer.h"
+#include <QTime>
 
 
 ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
@@ -18,21 +19,50 @@ void ServerStreamer::init()
         return;
     }
 
-    connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::sendMessage);
+    connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::clientConnected);
 
     // TODO: find a better place to do these stuffers below!!!!
 
-    ClientInfo client(QHostAddress::LocalHost, 1233);
-    addClient(client);
+    //auto *client = new ClientInfo(QHostAddress::LocalHost, 1233);
+    //addClient(client);
 
-    player = new Player;
-    connect(player, &Player::bufferSend, this, &ServerStreamer::write);
+    //player = new Player;
+    //connect(player, &Player::bufferSend, this, &ServerStreamer::write);
+}
+
+void ServerStreamer::clientConnected() // TODO: close all connections when...?
+{
+    QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
+    clients << new Common::ClientInfo(clientConnection);
+    qDebug() << "Client ID: " << clientConnection->socketDescriptor();
+
+    // We have obtained sub-socket, connection has been established
+
+    connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
+    connect(clientConnection, &QAbstractSocket::disconnected, this, &ServerStreamer::clientDisconnected); // TODO: a je treba to pol disconnectat?
+
+    emit clientCountChanged(clients.length());
+}
+
+void ServerStreamer::clientDisconnected()
+{
+    for (int i = 0; i < clients.length(); i++) // TODO: iterator k ne rab pol kopirat... linked list!
+    {
+        // TODO: WHY THE FUCK isOpen RETURNS TRUE WHEN SOCKET ID IS -1!!!! WHAT THE FUCK OBAMA
+        qDebug() << "DC:" << clients[i]->connection->socketDescriptor() << clients[i]->connection->isOpen();
+
+        if (clients[i]->connection->socketDescriptor() == -1) clients.removeAt(i);
+        // TODO: kle nardis prevezavo povezav med klienti in dolocs od kje kdo posilja, k en linked list? mogoce se kr to res ponuca...
+    }
+
+    emit clientCountChanged(clients.length());
 }
 
 void ServerStreamer::write(QByteArray data)
 {
-    foreach(ClientInfo c, clients){
-        socket->writeDatagram(data, c.address, c.port);
+    qDebug() << "Writing to clients!"; // TODO: tole SKOS strela?? a je ksn timer?
+    foreach(Common::ClientInfo *c, clients){
+        socket->writeDatagram(data, c->address, c->port);
     }
 }
 
@@ -48,22 +78,16 @@ void ServerStreamer::sendMessage()
     // Set the data stream version, the client and server side use the same version
 
     out << (quint16)0;
-    out << tr ("hello TCP!!!");
-    out.device () -> seek (0);
-    out << (quint16)(block.size () - sizeof(quint16));
+    out << QString("Ping! Time: %1").arg(QTime::currentTime().toString());
+    out.device() -> seek(0);
+    out << (quint16)(block.size() - sizeof(quint16));
 
-    QTcpSocket * clientConnection = tcpServer-> nextPendingConnection (); // a se neb to kje shranjeval pol k bo vec clientov?
+    foreach (Common::ClientInfo *c, clients)
+        c->connection->write(block);
 
-    // We have obtained sub-socket connection has been established
+    //clientConnection-> disconnectFromHost();
 
-    connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
-
-    clientConnection-> write (block);
-    clientConnection-> disconnectFromHost();
-
-    qDebug() << "send message successful!!!";
-
-    // Send data successfully, the display prompts
+    qDebug() << "Server: Ping message sent.";
 }
 
 /*void ServerStreamer::sessionOpened()
@@ -124,6 +148,6 @@ void ServerStreamer::sendMessage()
     clientConnection->disconnectFromHost();
 }*/
 
-void ServerStreamer::addClient(ClientInfo c){
+void ServerStreamer::addClient(Common::ClientInfo *c){
     clients << c;
 }
