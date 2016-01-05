@@ -26,5 +26,9 @@ Player::Player(QObject *parent) : QObject(parent)
 qint64 microsec=-1;
 void Player::processBuffer(QAudioBuffer abuff)
 {
-    emit bufferSend(QByteArray((const char*)abuff.constData(), abuff.byteCount()));
+    QByteArray b1 = QByteArray((const char*) abuff.constData(), abuff.byteCount()/2);
+    QByteArray b2 = QByteArray((const char*) abuff.constData()+abuff.byteCount()/2, abuff.byteCount()/2);
+    //emit bufferSend(QByteArray((const char*)abuff.constData(), abuff.byteCount()));
+    emit bufferSend(b1);
+    emit bufferSend(b2);
 }

@@ -29,6 +29,7 @@ FORMS += main_window.ui
 RESOURCES += music.qrc
 
 INCLUDEPATH += ../common
+CONFIG += c++11
 
 #LIBS += -L../common -lcommon
 

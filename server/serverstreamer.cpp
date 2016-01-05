@@ -72,7 +72,8 @@ void ServerStreamer::write(QByteArray data)
     qDebug() << "Writing to clients!"; // TODO: tole SKOS strela?? a je ksn timer?
     qDebug() << clients.size();
     foreach(Common::ClientInfo *c, clients){
-        if(-1 == socket->writeDatagram(data, c->address, c->port));
+        qDebug() << c->address << "  " << c->port;
+        if(-1 == socket->writeDatagram(data, QHostAddress::LocalHost, 1233))
             qDebug() << "TO BIG!" <<endl;
     }
 }
