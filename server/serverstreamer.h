@@ -23,6 +23,8 @@ public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
     void sendMessage();
+    void startStream();
+
 
 private:
 
@@ -30,6 +32,7 @@ private:
 
 signals:
     void clientCountChanged(int);
+
 
 private slots:
     void clientConnected();

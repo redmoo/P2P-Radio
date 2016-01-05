@@ -30,6 +30,12 @@ void ServerStreamer::init()
     //connect(player, &Player::bufferSend, this, &ServerStreamer::write);
 }
 
+void ServerStreamer::startStream()
+{
+    player = new Player;
+    connect(player, &Player::bufferSend, this, &ServerStreamer::write);
+}
+
 void ServerStreamer::clientConnected() // TODO: close all connections when...?
 {
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
@@ -61,8 +67,10 @@ void ServerStreamer::clientDisconnected()
 void ServerStreamer::write(QByteArray data)
 {
     qDebug() << "Writing to clients!"; // TODO: tole SKOS strela?? a je ksn timer?
+    qDebug() << clients.size();
     foreach(Common::ClientInfo *c, clients){
-        socket->writeDatagram(data, c->address, c->port);
+        if(-1 == socket->writeDatagram(data, c->address, c->port));
+            qDebug() << "TO BIG!" <<endl;
     }
 }
 

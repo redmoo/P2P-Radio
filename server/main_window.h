@@ -19,6 +19,7 @@ public:
 private slots:
     void on_pingCLientsButton_clicked();
     void updateClientCount(int);
+    void on_startStream_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -29,3 +29,8 @@ void MainWindow::updateClientCount(int count)
 {
     ui->numConnections->setText(QString::number(count));
 }
+
+void MainWindow::on_startStream_clicked()
+{
+    stream->startStream();
+}
