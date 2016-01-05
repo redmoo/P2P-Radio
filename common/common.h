@@ -19,6 +19,10 @@ public:
             ID = c->socketDescriptor();
         }
 
+        ClientInfo(QTcpSocket *c, QHostAddress addr, qint16 port) : connection(c), address(addr), port(port)
+        {
+            ID = c->socketDescriptor();
+        }
         QTcpSocket *connection;
         QHostAddress address;
         quint16 port;
