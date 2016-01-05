@@ -6,13 +6,16 @@
 #include <QAudioBuffer>
 #include <QAudioProbe>
 #include <QFile>
+#include <QAudioDecoder>
+#include <QAudioOutput>
+#include <audiosource.h>
 
 class Player : public QObject
 {
     Q_OBJECT
 public:
     explicit Player(QObject *parent = 0);
-
+    AudioSource *source;
 signals:
     void bufferSend(QByteArray);
 
@@ -21,6 +24,7 @@ public slots:
 
 private:
     QMediaPlayer *player;
+    QAudioDecoder *decoder;
 
 };
 

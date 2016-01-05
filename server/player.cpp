@@ -1,4 +1,6 @@
 #include "player.h"
+#include "audiosource.h"
+#include "common.h"
 
 Player::Player(QObject *parent) : QObject(parent)
 {
@@ -20,10 +22,17 @@ Player::Player(QObject *parent) : QObject(parent)
     probe->setSource(player); // Returns true, hopefully.
 
 
-    player->play();
+    //player->play();
+
+    source = new AudioSource();
+    source->open(AudioSource::ReadWrite);
+
+    auto *audio = new QAudioOutput(Common::getFormat(), this);
+    audio->setVolume(0.0);
+    audio->start(source);
 }
 
-qint64 microsec=-1;
+
 void Player::processBuffer(QAudioBuffer abuff)
 {
     QByteArray b1 = QByteArray((const char*) abuff.constData(), abuff.byteCount()/2);

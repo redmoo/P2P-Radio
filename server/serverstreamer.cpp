@@ -31,6 +31,7 @@ void ServerStreamer::startStream()
 {
     player = new Player;
     connect(player, &Player::bufferSend, this, &ServerStreamer::write);
+    connect(player->source, &AudioSource::dataReady, this, &ServerStreamer::write);
 }
 
 void ServerStreamer::clientConnected() // TODO: close all connections when...?
