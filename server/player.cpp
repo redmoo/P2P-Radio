@@ -25,9 +25,10 @@ Player::Player(QObject *parent) : QObject(parent)
     //player->play();
 
     source = new AudioSource();
+    source->decode();
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
-    audio->setVolume(0.0);
+    audio->setVolume(0.5);
     audio->start(source);
 }
 
