@@ -45,6 +45,8 @@ private:
     QList<Common::ClientInfo *> clients;
     QHostAddress serverAddress;
     qint16 serverPort;
+    qint16 clientPort;
+    QHostAddress clientAddress;
 
 
 };
