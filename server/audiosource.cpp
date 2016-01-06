@@ -5,11 +5,13 @@ AudioSource::AudioSource()
 {
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
+    //decoder->setSourceFilename(QUrl("qrc:/habibi.mp3").toLocalFile());
     decoder->setSourceFilename("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3");
 
     connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();
-    this->setBuffer(new QByteArray(1024*200,0));
+    this->open(QBuffer::ReadWrite);
+    // this->setBuffer(new QByteArray(1024*200,0));
 }
 
 void AudioSource::processBufferDecoder(){

@@ -40,10 +40,11 @@ private:
     QTcpSocket *tcpSocket;
     QNetworkSession *networkSession;
     quint16 blockSize;
-    QIODevice *playbuff;
+    QBuffer *playbuff;
     QList<Common::ClientInfo *> clients;
     QHostAddress serverAddress;
     qint16 serverPort;
+
 
 };
 

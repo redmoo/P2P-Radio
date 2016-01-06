@@ -22,9 +22,13 @@ void StreamReceiver::init()
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
+    playbuff = new QBuffer();
+    playbuff->open(QBuffer::ReadWrite);
+
     auto *audio = new QAudioOutput(Common::getFormat(), this);
-    audio->setBufferSize(1024*10);
-    playbuff = audio->start();
+    // audio->setBufferSize(1024*10);
+        //playbuff = audio->start();
+    audio->start(playbuff);
 
 
     /*// find out IP addresses of this machine
@@ -145,14 +149,19 @@ void StreamReceiver::readyRead()
 
     socket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
 
+    qint64 val = playbuff->pos();
+    playbuff->seek(playbuff->size());
     playbuff->write(buffer.data(), buffer.size());
+    playbuff->seek(val);
+    qDebug() << val << endl;
+
 
     // Pass to clients
     foreach(Common::ClientInfo *c, clients){
         socket->writeDatagram(buffer, c->address, c->port);
     }
 
-    qDebug() << "Message (readyRead()):" << buffer << endl;
+    //qDebug() << "Message (readyRead()):" << buffer << endl;
 }
 
 /*
