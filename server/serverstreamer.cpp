@@ -9,11 +9,11 @@ ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
 void ServerStreamer::init()
 {
     socket = new QUdpSocket(this);
-    socket->bind(QHostAddress::LocalHost, 1234);
+    socket->bind(QHostAddress("193.2.178.92"), 1234);
 
     tcpServer = new QTcpServer(this);
 
-    if (! tcpServer-> listen (QHostAddress :: LocalHost, 6666)){
+    if (! tcpServer-> listen (QHostAddress("193.2.178.92"), 6666)){
         // Monitor port 6666 of the local host, if the error output an error message and close the
         qDebug () << tcpServer-> errorString ();
         return;
@@ -74,7 +74,7 @@ void ServerStreamer::write(QByteArray data)
     qDebug() << clients.size();
     foreach(Common::ClientInfo *c, clients){
         qDebug() << c->address << "  " << c->port;
-        if(-1 == socket->writeDatagram(data, QHostAddress::LocalHost, 1233))
+        if(-1 == socket->writeDatagram(data, QHostAddress("193.2.176.111"), 1233))
             qDebug() << "TO BIG!" <<endl;
     }
 }

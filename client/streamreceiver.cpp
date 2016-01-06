@@ -10,30 +10,30 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 void StreamReceiver::init()
 {
     socket = new QUdpSocket(this);
-    socket->bind(QHostAddress::LocalHost, 1233);
+    socket->bind(QHostAddress("193.2.178.92"), 1233);
 
     connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
 
     tcpSocket = new QTcpSocket(this);
 
-    serverAddress = QHostAddress::LocalHost;
+    serverAddress = QHostAddress("193.2.176.111");
     serverPort = 6666;
     connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
-    playbuff = new QBuffer();
-    playbuff->open(QBuffer::ReadWrite);
+    //playbuff = new QBuffer();
+    //playbuff->open(QBuffer::ReadWrite);
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
-    // audio->setBufferSize(1024*10);
-        //playbuff = audio->start();
-    audio->start(playbuff);
+    audio->setBufferSize(1024*10);
+    playbuff = audio->start();
+    //audio->start(playbuff);
+    //audio->setVolume(1.0);
 
 
     /*// find out IP addresses of this machine
     QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-
     tcpSocket = new QTcpSocket(this);
 
     //connect(getFortuneButton, SIGNAL(clicked()),this, SLOT(requestNewFortune()));
@@ -149,11 +149,11 @@ void StreamReceiver::readyRead()
 
     socket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
 
-    qint64 val = playbuff->pos();
-    playbuff->seek(playbuff->size());
+    //qint64 val = playbuff->pos();
+    //playbuff->seek(playbuff->size());
     playbuff->write(buffer.data(), buffer.size());
-    playbuff->seek(val);
-    qDebug() << val << endl;
+   // playbuff->seek(val);
+    //qDebug() << val << endl;
 
 
     // Pass to clients

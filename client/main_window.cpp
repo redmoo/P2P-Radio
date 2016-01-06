@@ -51,3 +51,9 @@ void MainWindow::on_receiveButton_clicked()
     //ui->connectionStatus->setText("Establishing connection to server...");
     receiver->newConnect();
 }
+
+void MainWindow::on_verticalSlider_valueChanged(int value)
+{
+    ui->activityDisplay->appendPlainText("---" + QString::number(value) + "\r\n");
+    //receiver->audio->setVolume(value/100);
+}

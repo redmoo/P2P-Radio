@@ -25,6 +25,8 @@ public slots:
 private slots:
     void on_receiveButton_clicked();
 
+    void on_verticalSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     StreamReceiver *receiver;

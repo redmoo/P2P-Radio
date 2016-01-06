@@ -6,7 +6,7 @@ AudioSource::AudioSource()
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
     //decoder->setSourceFilename(QUrl("qrc:/habibi.mp3").toLocalFile());
-    decoder->setSourceFilename("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3");
+    decoder->setSourceFilename("F:\\habibi.mp3");
 
     connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();
