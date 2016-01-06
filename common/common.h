@@ -63,6 +63,12 @@ public:
             ID = c->socketDescriptor();
         }
 
+
+        ClientInfo(QTcpSocket *c, QHostAddress addr, qint16 port) : connection(c), address(addr), port(port)
+        {
+            ID = c->socketDescriptor();
+        }
+
         QByteArray serialize()
         {
             QByteArray byteArray;
@@ -88,6 +94,7 @@ public:
         }
 
         int ID;
+
         QTcpSocket *connection;
         QHostAddress address;
         quint16 port;

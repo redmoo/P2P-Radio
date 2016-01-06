@@ -9,8 +9,11 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 
 void StreamReceiver::init()
 {
+    clientPort = 1233;
+    clientAddress = QHostAddress::LocalHost;
     socket = new QUdpSocket(this);
-    socket->bind(QHostAddress::LocalHost, 1233);
+    socket->bind(clientAddress, clientPort);
+
 
     connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
 
@@ -23,7 +26,7 @@ void StreamReceiver::init()
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
-    audio->setBufferSize(1024*10);
+    audio->setBufferSize(1024*100);
     playbuff = audio->start();
 }
 
@@ -50,28 +53,32 @@ void StreamReceiver::newConnect()
     tcpSocket->abort();
     tcpSocket->connectToHost(serverAddress, serverPort);
 
-    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
+    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + QString::number(serverPort)));
 
     if(tcpSocket->waitForConnected(3000)){
         //Connection successful
         emit(connectionStatusChanged("Connected to server"));
-        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + serverPort));
+        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverPort)));
 
-        QByteArray block;
-        QDataStream out (&block, QIODevice::WriteOnly);
+        QByteArray block; // for temporarily storing the data to be sent
+        QDataStream out(&block, QIODevice::WriteOnly);
 
-        out.setVersion (QDataStream::Qt_5_0);
+        // Use the data stream to write data
+
+        out.setVersion(QDataStream::Qt_5_0);
+
+        // Set the data stream version, the client and server side use the same version
 
         out << (quint16)0;
-        out << tr ("I am client");
+        //out << tr ("I'm a client" + clientPort );
+        out << QString::number(clientPort);
         out.device()->seek(0);
         out << (quint16)(block.size() - sizeof(quint16));
 
         tcpSocket->write(block);
 
     }else{
-        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + serverPort));
-        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + serverPort));
+        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + QString::number(serverPort)));
     }
 
     //emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));

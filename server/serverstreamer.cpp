@@ -8,11 +8,12 @@ ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
 void ServerStreamer::init()
 {
     socket = new QUdpSocket(this);
+    //socket->bind(QHostAddress("193.2.178.92"), 1234);
     socket->bind(QHostAddress::LocalHost, 1234);
 
     tcpServer = new QTcpServer(this);
 
-    if (! tcpServer-> listen (QHostAddress :: LocalHost, 6666)){
+    if (! tcpServer-> listen (QHostAddress::LocalHost, 6666)){
         // Monitor port 6666 of the local host, if the error output an error message and close the
         qDebug () << tcpServer-> errorString ();
         return;
@@ -29,9 +30,30 @@ void ServerStreamer::startStream()
 
 void ServerStreamer::clientConnected() // TODO: close all connections when...?
 {
+    qint16 blockSize=0;
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    clients << new Common::ClientInfo(clientConnection);
+    //clients << new Common::ClientInfo(clientConnection);
     qDebug() << "Client ID: " << clientConnection->socketDescriptor();
+
+    if(clientConnection->waitForReadyRead()){
+        qDebug() << "Cakam na sprejem" <<endl;
+        QDataStream in(clientConnection);
+        in.setVersion(QDataStream::Qt_5_0);
+
+        if(blockSize == 0){
+            if(clientConnection->bytesAvailable() < (int)sizeof(quint16)) return;
+            in >> blockSize;
+        }
+
+        if(clientConnection->bytesAvailable() < blockSize) return;
+        blockSize = 0;
+
+        QString message;
+        in >> message;
+        qint16 clientPort = message.toInt();
+        qDebug() << "Message (readMessage()): " + QString::number(clientPort);
+        clients << new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort );
+    }
 
     // We have obtained sub-socket, connection has been established
 
