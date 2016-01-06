@@ -12,7 +12,50 @@ class COMMONSHARED_EXPORT Common
 
 public:
 
-//#pragma pack(push, 1)
+    /**** INSTRUCTIONS ****/
+
+    enum CommandID: quint8
+    {
+        MESSAGE,
+        DESTINATION
+    };
+
+    struct MessageCommand // TODO: verjetno se ClientInfo sem notr zapakira??
+    {
+        MessageCommand() : cid(MESSAGE) {}
+        MessageCommand(QString msg) : message(msg), cid(MESSAGE) {}
+
+        QByteArray serialize()
+        {
+            QByteArray byteArray;
+
+            QDataStream stream(&byteArray, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream << cid
+                   << message;
+
+            return byteArray;
+        }
+
+        MessageCommand* deserialize(const QByteArray& byteArray)
+        {
+            QDataStream stream(byteArray);
+            stream.setVersion(QDataStream::Qt_5_0);
+
+            stream >> cid
+                   >> message;
+
+            return this;
+        }
+
+        quint8 cid;
+        QString message;
+    };
+
+    /**** DATA PACKETS ****/
+
+    //#pragma pack(push, 1)
     struct ClientInfo
     {
         ClientInfo(QTcpSocket *c) : connection(c)
@@ -49,7 +92,7 @@ public:
         QHostAddress address;
         quint16 port;
     };
-//#pragma pack(pop)
+    //#pragma pack(pop)
 
     struct DataPacket // alignment?
     {

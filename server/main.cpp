@@ -14,4 +14,4 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
-// keep britney sp-... err.. main aloooone
+// leave britney sp-... err.. main aloooone

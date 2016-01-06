@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="habibi.mp3">../habibi.mp3</file>
+        <file>../habibi.mp3</file>
     </qresource>
 </RCC>
