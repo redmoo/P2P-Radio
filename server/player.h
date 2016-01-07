@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QAudioDecoder>
 #include <QAudioOutput>
-#include <audiosource.h>
+#include "audiosource.h"
 
 class Player : public QObject
 {
