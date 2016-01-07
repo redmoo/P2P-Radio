@@ -18,6 +18,7 @@ public:
     AudioSource *source;
 signals:
     void bufferSend(QByteArray);
+    void bufferSendChunks(QVector<QByteArray>);
 
 public slots:
     void processBuffer(QAudioBuffer);

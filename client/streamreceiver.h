@@ -19,6 +19,9 @@ public:
     void newConnect();
     void addClient(Common::ClientInfo *);
 
+private:
+    void readMessage(const QByteArray &data);
+
 signals:
     void messageChanged(QString);
     void connectionStatusChanged(QString);
@@ -28,7 +31,7 @@ signals:
 private slots:
     void readyRead();
     void displayError(QAbstractSocket::SocketError socketError);
-    void readMessage();
+    void readCommand();
     //QString readMessage();
     //void doConnectTcp();
     //void requestNewFortune();

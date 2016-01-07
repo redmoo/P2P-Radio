@@ -12,12 +12,10 @@ TEMPLATE = lib
 #CONFIG = staticlib
 #DEFINES += COMMON_LIBRARY
 
-SOURCES += common.cpp \
-           clientinfo.cpp
+SOURCES += common.cpp
 
 HEADERS += common.h \
-           common_global.h \
-           clientinfo.h
+           common_global.h
 
 unix {
     target.path = /usr/lib

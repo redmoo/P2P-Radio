@@ -11,7 +11,7 @@ class AudioSource : public QBuffer
 public:
     AudioSource();
     void decode();
-    // qint64 readData(char *data, qint64 maxlen);
+    qint64 readData(char *data, qint64 maxlen);
 
 private:
     QAudioDecoder *decoder;
@@ -20,7 +20,7 @@ public slots:
     void processBufferDecoder();
 
 signals:
-    void dataReady(QByteArray);
+    void dataReady(QVector<QByteArray>);
 
 };
 

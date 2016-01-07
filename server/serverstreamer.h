@@ -22,31 +22,28 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
-    void sendMessage();
+    void sendMessage(QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
     void startStream();
 
-
 private:
-
     void addClient(Common::ClientInfo *); // TODO: namespace!!
 
 signals:
     void clientCountChanged(int);
-
 
 private slots:
     void clientConnected();
     void clientDisconnected();
     //void sessionOpened();
     //void sendFortune();
-    void write(QByteArray data);
+    void write(QVector<QByteArray> data);
 
 private:
     QUdpSocket *socket;
     QTcpServer *tcpServer;
     QStringList messages;
     QNetworkSession *networkSession;
-    QList<Common::ClientInfo *> clients;
+    QVector<Common::ClientInfo *> clients;
     Player *player;
 };
 

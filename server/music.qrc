@@ -1,6 +1,5 @@
 <RCC>
-    <qresource prefix="/">
-        <file alias="habibi.mp3">../habibi.mp3</file>
-        <file>../NeroSoundTrax_test3_PCM_Mono_CBR_8SS_8000Hz.wav</file>
+    <qresource prefix="/..">
+        <file alias="habibi">../habibi.mp3</file>
     </qresource>
 </RCC>

@@ -18,10 +18,10 @@ void StreamReceiver::init()
 
     tcpSocket = new QTcpSocket(this);
 
-    //serverAddress = QHostAddress::LocalHost;
-    serverAddress = QHostAddress("193.2.178.92");
+    serverAddress = QHostAddress::LocalHost;
+    //serverAddress = QHostAddress("193.2.178.92");
     serverPort = 6666;
-    connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readMessage);
+    connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readCommand);
 
     connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
 
@@ -32,42 +32,6 @@ void StreamReceiver::init()
     //playbuff = audio->start();
     audio->setBufferSize(1024*100);
     playbuff = audio->start();
-
-
-    /*// find out IP addresses of this machine
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-
-    tcpSocket = new QTcpSocket(this);
-
-    //connect(getFortuneButton, SIGNAL(clicked()),this, SLOT(requestNewFortune()));
-    //connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
-    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(displayError(QAbstractSocket::SocketError)));
-
-
-    QNetworkConfigurationManager manager;
-    if (manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired) {
-        // Get saved network configuration
-        QSettings settings(QSettings::UserScope, QLatin1String("QtProject"));
-        settings.beginGroup(QLatin1String("QtNetwork"));
-        const QString id = settings.value(QLatin1String("DefaultNetworkConfiguration")).toString();
-        settings.endGroup();
-
-        // If the saved network configuration is not currently discovered use the system default
-        QNetworkConfiguration config = manager.configurationFromIdentifier(id);
-        if ((config.state() & QNetworkConfiguration::Discovered) !=
-            QNetworkConfiguration::Discovered) {
-            config = manager.defaultConfiguration();
-        }
-
-        networkSession = new QNetworkSession(config, this);
-        connect(networkSession, SIGNAL(opened()), this, SLOT(sessionOpened()));
-
-
-        qDebug() << "Opening network session.";
-        networkSession->open();
-    }*/
-
 }
 
 QString getIPAddress()
@@ -100,43 +64,31 @@ void StreamReceiver::newConnect()
         emit(connectionStatusChanged("Connected to server"));
         emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverPort)));
 
-        /*QByteArray block;
-        QDataStream out (& block, QIODevice :: WriteOnly);
-
-        out.setVersion (QDataStream :: Qt_5_0);
-
-        out << (quint16)0;
-        out << tr ("I'm client" + clientPort );
-        out.device () -> seek (0);
-        out << (quint16)(block.size () - sizeof(quint16));
-
-        tcpSocket->write(block);*/
-
         QByteArray block; // for temporarily storing the data to be sent
-        QDataStream out (& block, QIODevice :: WriteOnly);
+        QDataStream out(&block, QIODevice::WriteOnly);
 
         // Use the data stream to write data
 
-        out.setVersion (QDataStream :: Qt_5_0);
+        out.setVersion(QDataStream::Qt_5_0);
 
         // Set the data stream version, the client and server side use the same version
 
         out << (quint16)0;
+        //out << tr ("I'm a client" + clientPort );
         out << QString::number(clientPort);
-        out.device() -> seek(0);
+        out.device()->seek(0);
         out << (quint16)(block.size() - sizeof(quint16));
 
-         tcpSocket->write(block);
+        tcpSocket->write(block);
 
     }else{
         emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + QString::number(serverPort)));
-
     }
 
     //emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
 }
 
-void StreamReceiver::readMessage()
+void StreamReceiver::readCommand()
 {
     QDataStream in(tcpSocket);
     in.setVersion(QDataStream::Qt_5_0);
@@ -149,17 +101,28 @@ void StreamReceiver::readMessage()
     if(tcpSocket->bytesAvailable() < blockSize) return;
     blockSize = 0;
 
-    QString message;
-    in >> message;
+    quint8 cid = tcpSocket->peek(1).toUInt();
 
+    switch (cid)
+    {
+        case Common::CommandID::MESSAGE:
+            readMessage(tcpSocket->readAll());
+            break;
+
+        case Common::CommandID::DESTINATION:
+            break;
+    }
+}
+
+void StreamReceiver::readMessage(const QByteArray &data)
+{
+    QString message = (Common::MessageCommand().deserialize(data))->message;
     qDebug() << "Message (readMessage()): " + message;
-
     emit(messageChanged(message));
 }
 
 void StreamReceiver::readyRead()
 {
-    qDebug() << "Read" << endl;
     QByteArray buffer;
     buffer.resize(socket->pendingDatagramSize());
 
@@ -172,38 +135,12 @@ void StreamReceiver::readyRead()
 
 
     // Pass to clients
-    /*foreach(Common::ClientInfo *c, clients){
-        socket->writeDatagram(buffer, c->address, c->port);
-    }*/
+    //foreach(Common::ClientInfo *c, clients){
+    //    socket->writeDatagram(buffer, c->address, c->port);
+    //}
 
-    //qDebug() << "Message (readyRead()):" << buffer << endl;
+    qDebug() << "Message (readyRead()):" << buffer.size();
 }
-
-/*
-void StreamReceiver::doConnectTcp()
-{
-    tcpSocket = new QTcpSocket(this);
-
-    //connect(tcpSocket, &QIODevice::readyRead, this, SLOT(readyReadTcpData())); ???
-
-    tcpSocket->connectToHost(QHostAddress::LocalHost, 4444);
-
-    if(socket->waitForConnected(5000)){
-        qDebug() << "Connected to host!" << endl;
-        tcpSocket->write("Hello server\r\n\r\n");
-        tcpSocket->waitForBytesWritten(1000);
-        tcpSocket->waitForReadyRead(3000);
-
-        qDebug() << "Sent!";
-
-
-        tcpSocket->close();
-    }else{
-        qDebug() << "Connection not established!" <<endl;
-    }
-
-}
-*/
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
 {
@@ -230,26 +167,6 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
     emit(connectButtonToggle(true));
 
 }
-
-/*void StreamReceiver::sessionOpened()
-{    // Save the used configuration
-
-    QNetworkConfiguration config = networkSession->configuration();
-    QString id;
-    if (config.type() == QNetworkConfiguration::UserChoice)
-        id = networkSession->sessionProperty(QLatin1String("UserChoiceConfiguration")).toString();
-    else
-        id = config.identifier();
-
-    QSettings settings(QSettings::UserScope, QLatin1String("QtProject"));
-    settings.beginGroup(QLatin1String("QtNetwork"));
-    settings.setValue(QLatin1String("DefaultNetworkConfiguration"), id);
-    settings.endGroup();
-
-    qDebug() << "This examples requires that you run the Fortune Server example as well";
-
-
-}*/
 
 void StreamReceiver::addClient(Common::ClientInfo *c){
     clients << c;

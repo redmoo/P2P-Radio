@@ -11,9 +11,6 @@ MainWindow::MainWindow(StreamReceiver *recv, QWidget *parent) :
 
     receiver->init();
 
-    //reciever.doConnect();
-    //reciever.requestNewFortune();
-
     connect(receiver, &StreamReceiver::messageChanged, this, &MainWindow::updateMessageDisplay);
     connect(receiver, &StreamReceiver::connectionStatusChanged, this, &MainWindow::updateConnectionStatusDisplay);
     connect(receiver, &StreamReceiver::activityLogChanged, this, &MainWindow::updateActivityLogDisplay);

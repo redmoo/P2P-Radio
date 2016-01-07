@@ -25,11 +25,11 @@ void AudioSource::processBufferDecoder(){
     this->seek(val);
 }
 
-/*
 qint64 tmp;
 qint64 AudioSource::readData(char *data, qint64 maxlen){
+    QVector<QByteArray> chunks;
     tmp = QBuffer::readData(data, maxlen);
-    emit dataReady(QByteArray((const char*)data, tmp));
+    chunks.append(QByteArray((const char*)data, tmp));
+    emit dataReady(chunks);
     return tmp;
 }
-*/
