@@ -6,14 +6,17 @@ AudioSource::AudioSource()
     this->open(QBuffer::ReadWrite);
     }
 
-void AudioSource::decode(){
+void AudioSource::decode(QString audioFile){
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
     //decoder->setSourceFilename(QUrl("qrc:/habibi.mp3").toLocalFile());
-    decoder->setSourceFilename("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3");
+    //decoder->setSourceFilename("F:\\habibi.mp3");
+    decoder->setSourceFilename(audioFile);
+
 
     connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();
+
     // this->setBuffer(new QByteArray(1024*200,0));
 }
 

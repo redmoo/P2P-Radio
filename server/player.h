@@ -14,7 +14,7 @@ class Player : public QObject
 {
     Q_OBJECT
 public:
-    explicit Player(QObject *parent = 0);
+    explicit Player(QString audioFile, QObject *parent = 0);
     AudioSource *source;
 signals:
     void bufferSend(QByteArray);

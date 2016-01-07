@@ -1,5 +1,6 @@
 #include "serverstreamer.h"
 #include <QTime>
+#include <QFileDevice>
 
 ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
 {
@@ -25,7 +26,8 @@ void ServerStreamer::init()
 
 void ServerStreamer::startStream()
 {
-    player = new Player;
+
+    player = new Player(audioFile);
     //connect(player, &Player::bufferSend, this, &ServerStreamer::write);
     connect(player->source, &AudioSource::dataReady, this, &ServerStreamer::write);
     //connect(player, &Player::bufferSendChunks, this, &ServerStreamer::write);
@@ -88,7 +90,7 @@ void ServerStreamer::clientDisconnected()
 
 void ServerStreamer::write(QVector<QByteArray> data)
 {
-    qDebug() << "Writing to clients!";
+    //qDebug() << "Writing to clients!";
 
     foreach (auto chunk, data)
     {

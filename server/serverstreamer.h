@@ -24,12 +24,14 @@ public:
     void init();
     void sendMessage(QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
     void startStream();
+    QString audioFile;
 
 private:
     void addClient(Common::ClientInfo *); // TODO: namespace!!
 
 signals:
     void clientCountChanged(int);
+
 
 private slots:
     void clientConnected();

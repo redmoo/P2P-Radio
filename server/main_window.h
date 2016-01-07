@@ -21,6 +21,8 @@ private slots:
     void updateClientCount(int);
     void on_startStream_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     ServerStreamer *stream;

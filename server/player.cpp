@@ -2,7 +2,7 @@
 #include "audiosource.h"
 #include "common.h"
 
-Player::Player(QObject *parent) : QObject(parent)
+Player::Player(QString fileName, QObject *parent) : QObject(parent)
 {
     player = new QMediaPlayer;
     // ...
@@ -25,7 +25,8 @@ Player::Player(QObject *parent) : QObject(parent)
     //player->play();
 
     source = new AudioSource();
-    source->decode();
+    source->decode(fileName);
+
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
     audio->setVolume(0.0);
