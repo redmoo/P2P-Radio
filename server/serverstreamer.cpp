@@ -1,69 +1,95 @@
 #include "serverstreamer.h"
 #include <QTime>
+#include <iostream>
+#include <QtTest/QTest>
 
-ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent)
-{
-}
+ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent) {}
 
 void ServerStreamer::init()
 {
-    socket = new QUdpSocket(this);
+    //serverAddress = QHostAddress::LocalHost;
+    //serverUdpPort = 1234; // unneeded?
+    serverTcpPort = 6666;
+
+    serverUdpSocket = new QUdpSocket(this); // TODO: mogoc most odpret se incoming, pa pol na clientu connecttohost da bo po netu delal!!!! virtualna dvosmerna povezava
+
+    // TODO: setup from main window.. all of it.
+    // also, tole je za INCOMING udp packets ane?
 
     //socket->bind(QHostAddress("193.2.178.92"), 1234);
-    socket->bind(QHostAddress::LocalHost, 1234);
+    //serverUdpSocket->bind(serverAddress, serverUdpPort);
+    //socket->bind(QHostAddress("109.182.180.107"), 1234);
+
+    // TDODOOOOOOOOOOO: server: bind? connectToHost? / client: connectToHost? udp... to fool the routers
 
     tcpServer = new QTcpServer(this);
 
-    if (! tcpServer-> listen (QHostAddress::LocalHost, 6666)){
-        // Monitor port 6666 of the local host, if the error output an error message and close the
-        qDebug () << tcpServer-> errorString ();
+    if (!tcpServer->listen(serverAddress, serverTcpPort)){
+        qDebug () << tcpServer->errorString();
+        tcpServer->close();
         return;
     }
 
     connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::clientConnected);
 }
 
-void ServerStreamer::startStream()
+void ServerStreamer::startStream(QString ip, bool chain_streaming)
 {
+    serverAddress = QHostAddress(ip);
+    init();
+
     player = new Player;
-    //connect(player, &Player::bufferSend, this, &ServerStreamer::write);
     connect(player->source, &AudioSource::dataReady, this, &ServerStreamer::write);
-    //connect(player, &Player::bufferSendChunks, this, &ServerStreamer::write);
 }
 
 void ServerStreamer::clientConnected() // TODO: close all connections when...?
 {
-    qint16 blockSize=0;
+    qint16 blockSize = 0;
+
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    //clients << new Common::ClientInfo(clientConnection);
     qDebug() << "Client ID: " << clientConnection->socketDescriptor();
 
-    if(clientConnection->waitForReadyRead()){
-        qDebug() << "Cakam na sprejem" <<endl;
-        QDataStream in(clientConnection);
+    // TODO: a ce tole gre cez se pol klice readyread pa gre v uno metodo takoj pred ostalimi povezavami? kr sele tm se pol connecta zares naj!
+    if(clientConnection->waitForReadyRead()) // TODO: spremen zarad windowsov! see documentation. verjetn bi jih blo za v queue dat pa pol spodi processat...
+    {                                        // TODO: tole queue. za test das kle 1, pa sleep v clienta in se ne connecta! potestiraj k bo connect queue!
+        QDataStream in(clientConnection);    // TODO: NARED RECIEVE METODO ZA SERVER!
         in.setVersion(QDataStream::Qt_5_0);
 
-        if(blockSize == 0){
+        // TODO: pri testiranju mas kle umes un blockSize...
+
+        /*if(blockSize == 0)
+        {
+            qDebug() << "block size = 0";
             if(clientConnection->bytesAvailable() < (int)sizeof(quint16)) return;
             in >> blockSize;
         }
-
+        qDebug() << "Why am I here multiple times?";
         if(clientConnection->bytesAvailable() < blockSize) return;
-        blockSize = 0;
+        blockSize = 0;*/
 
-        QString message;
-        in >> message;
-        qint16 clientPort = message.toInt();
-        qDebug() << "Message (readMessage()): " + QString::number(clientPort);
-        clients << new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort );
+        in >> blockSize; // TODO: read the above
+
+        qint16 clientPort;
+        in >> clientPort;
+
+        if (QString::number(clientPort).isEmpty())
+        {
+            std::cerr << "Client data took too long to arrive!" << std::endl;
+            return;
+        }
+
+        qDebug() << "Client sent its info. UDP port: " + QString::number(clientPort);
+        clients << new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort);
+
+        //serverUdpSocket->connectToHost(clientConnection->localAddress(), clientPort);
+        // We have obtained sub-socket, connection has been established
+
+        // TODO: tole vse samo ce se connecta!!
+        connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
+        connect(clientConnection, &QAbstractSocket::disconnected, this, &ServerStreamer::clientDisconnected); // TODO: a je treba to pol disconnectat?
+
+        emit clientCountChanged(clients.length());
     }
-
-    // We have obtained sub-socket, connection has been established
-
-    connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
-    connect(clientConnection, &QAbstractSocket::disconnected, this, &ServerStreamer::clientDisconnected); // TODO: a je treba to pol disconnectat?
-
-    emit clientCountChanged(clients.length());
 }
 
 void ServerStreamer::clientDisconnected()
@@ -88,14 +114,15 @@ void ServerStreamer::clientDisconnected()
 
 void ServerStreamer::write(QVector<QByteArray> data)
 {
-    qDebug() << "Writing to clients!";
+    //qDebug() << "Writing to clients!";
 
     foreach (auto chunk, data)
     {
-        foreach(auto *c, clients){ // TODO: a ni to mal narobe...
-            //qDebug() << c->address << "  " << c->port;
+        foreach(auto *c, clients){
+            quint64 bytes_sent = serverUdpSocket->writeDatagram(chunk, chunk.size(), c->address, c->port);
+            //qDebug() << "Bytes sent:" << bytes_sent;
 
-            if(-1 == socket->writeDatagram(chunk, QHostAddress::LocalHost, 1233))
+            if(bytes_sent == -1)
                 qDebug() << "CHUNK TOO BIG! (ServerStreamer::write)";
         }
     }

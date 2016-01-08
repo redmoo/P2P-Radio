@@ -46,5 +46,7 @@ void MainWindow::on_receiveButton_clicked()
 {
     ui->receiveButton->setEnabled(false);
     //ui->connectionStatus->setText("Establishing connection to server...");
-    receiver->newConnect();
+    ui->serverConnectionInfo->setEnabled(false);
+    ui->clientConnectionInfo->setEnabled(false);
+    receiver->newConnect(ui->serverConnectionInfo->text(), ui->clientConnectionInfo->text());
 }

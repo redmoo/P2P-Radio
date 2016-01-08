@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QAudioDecoder>
 #include <QAudioOutput>
-#include <audiosource.h>
+#include "audiosource.h"
 
 class Player : public QObject
 {
@@ -16,6 +16,7 @@ class Player : public QObject
 public:
     explicit Player(QObject *parent = 0);
     AudioSource *source;
+
 signals:
     void bufferSend(QByteArray);
     void bufferSendChunks(QVector<QByteArray>);

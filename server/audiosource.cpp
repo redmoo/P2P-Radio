@@ -10,9 +10,9 @@ void AudioSource::decode(){
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
     //decoder->setSourceFilename(QUrl("qrc:/habibi.mp3").toLocalFile());
-    decoder->setSourceFilename("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3");
-
-    connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
+    qDebug() << QFile("C:\\Projects\\P2P-Radio\\proto.mp3").exists();
+    decoder->setSourceFilename("C:\\Projects\\P2P-Radio\\proto.mp3");
+    decoder->connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();
     // this->setBuffer(new QByteArray(1024*200,0));
 }
@@ -25,10 +25,9 @@ void AudioSource::processBufferDecoder(){
     this->seek(val);
 }
 
-qint64 tmp;
 qint64 AudioSource::readData(char *data, qint64 maxlen){
     QVector<QByteArray> chunks;
-    tmp = QBuffer::readData(data, maxlen);
+    qint64 tmp = QBuffer::readData(data, maxlen);
     chunks.append(QByteArray((const char*)data, tmp));
     emit dataReady(chunks);
     return tmp;

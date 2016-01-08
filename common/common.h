@@ -58,7 +58,7 @@ public:
     //#pragma pack(push, 1)
     struct ClientInfo
     {
-        ClientInfo(QTcpSocket *c) : connection(c)
+        ClientInfo(QTcpSocket *c) : connection(c) // TODO: ne rabs posebi porta pa addressa kr ze iz connectiona potegnes
         {
             ID = c->socketDescriptor();
         }
@@ -96,8 +96,8 @@ public:
         int ID;
 
         QTcpSocket *connection;
-        QHostAddress address;
-        quint16 port;
+        QHostAddress address; // not redundant. needed for sending to other clients
+        quint16 port; // UDP port
     };
     //#pragma pack(pop)
 

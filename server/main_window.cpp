@@ -10,8 +10,6 @@ MainWindow::MainWindow(ServerStreamer *s, QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("P2P Master");
 
-    stream->init();
-
     connect(stream, &ServerStreamer::clientCountChanged, this, &MainWindow::updateClientCount);
 }
 
@@ -32,5 +30,8 @@ void MainWindow::updateClientCount(int count)
 
 void MainWindow::on_startStream_clicked()
 {
-    stream->startStream();
+    ui->startStream->setEnabled(false);
+    ui->chainCheckBox->setEnabled(false);
+    ui->connectionInfoLine->setEnabled(false);
+    stream->startStream(ui->connectionInfoLine->text(), ui->chainCheckBox->isChecked());
 }

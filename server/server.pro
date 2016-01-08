@@ -28,11 +28,11 @@ HEADERS +=  main_window.h \
 
 FORMS += main_window.ui
 
-RESOURCES += music.qrc
+RESOURCES +=
 
 INCLUDEPATH += ../common
 
-CONFIG += c++11
+CONFIG += c++11 qtestlib
 
 #LIBS += -L../common -lcommon
 

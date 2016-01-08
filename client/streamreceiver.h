@@ -16,7 +16,7 @@ class StreamReceiver : public QObject
 public:
     explicit StreamReceiver(QObject *parent = 0);
     void init();
-    void newConnect();
+    void newConnect(QString server_ip, QString client_ip);
     void addClient(Common::ClientInfo *);
 
 private:
@@ -39,16 +39,17 @@ private slots:
     //void sessionOpened();
 
 private:
-    QUdpSocket *socket;
-    QTcpSocket *tcpSocket;
+    QUdpSocket *clientUdpSocket;
+    QTcpSocket *clientTcpSocket;
     QNetworkSession *networkSession;
     quint16 blockSize;
     QIODevice *playbuff;
     //QBuffer *playbuff;
     QList<Common::ClientInfo *> clients;
     QHostAddress serverAddress;
-    qint16 serverPort;
-    qint16 clientPort;
+    qint16 serverUdpPort;
+    qint16 serverTcpPort;
+    qint16 clientUdpPort;
     QHostAddress clientAddress;
 
 

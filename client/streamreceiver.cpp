@@ -1,7 +1,7 @@
 #include "streamreceiver.h"
 #include "common.h"
 #include <QAudioOutput>
-
+#include <QtTest/QTest>
 
 StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 {
@@ -9,31 +9,42 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 
 void StreamReceiver::init()
 {
-    clientPort = 1233;
-    clientAddress = QHostAddress::LocalHost;
-    socket = new QUdpSocket(this);
-    socket->bind(clientAddress, clientPort);
+    /**** UDP SETUP ****/
 
-    connect(socket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
-
-    tcpSocket = new QTcpSocket(this);
-
-    serverAddress = QHostAddress::LocalHost;
     //serverAddress = QHostAddress("193.2.178.92");
-    serverPort = 6666;
-    connect(tcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readCommand);
+    //serverAddress = QHostAddress("109.182.180.107");
+    //serverAddress = QHostAddress(server_ip);
+    //serverUdpPort = 1234; // TODO: TOLE POSLE SERVER NAZAJ CLIENTU PO MESSAGU PO USPESNI POVEZAVI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    serverTcpPort = 6666;
 
-    connect(tcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
+    //clientAddress = QHostAddress(client_ip); // TODO: a se da to avtomaticn potegnt vn... oz naj user vpise ob connectanju!
+    clientUdpPort = 1233;
+
+    clientUdpSocket = new QUdpSocket(this);
+
+    connect(clientUdpSocket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
+
+    clientUdpSocket->bind(clientAddress, clientUdpPort);
+    //clientUdpSocket->connectToHost(serverAddress, serverUdpPort, QIODevice::ReadOnly); // TODO: maybe fools the routers. may be necessary to connect on the server side too
+
+
+    /**** TCP SETUP ****/ // TODO: dej vse v connect tko da k user stisne lahk se vpise prej ip pa to...
+
+    clientTcpSocket = new QTcpSocket(this);
+
+    connect(clientTcpSocket, &QIODevice::readyRead, this, &StreamReceiver::readCommand);
+    connect(clientTcpSocket, static_cast<void(QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &StreamReceiver::displayError);
+
+    /**** AUDIO SETUP ****/
 
     //playbuff = new QBuffer();
     //playbuff->open(QBuffer::ReadWrite);
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
-    //playbuff = audio->start();
     audio->setBufferSize(1024*100);
-    playbuff = audio->start();
+    playbuff = audio->start(); // TODO: WAT????
 }
-
+/*
 QString getIPAddress()
 {
     QString ipAddress;
@@ -49,21 +60,21 @@ QString getIPAddress()
         ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
     return ipAddress;
 }
-
-void StreamReceiver::newConnect()
+*/
+void StreamReceiver::newConnect(QString server_ip, QString client_ip)
 {
+    serverAddress = QHostAddress(server_ip);
+    clientAddress = QHostAddress(client_ip);
+
     blockSize = 0;
 
-    tcpSocket->abort();
-    tcpSocket->connectToHost(serverAddress, serverPort);
+    clientTcpSocket->abort();
+    clientTcpSocket->connectToHost(serverAddress, serverTcpPort);
 
-    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + QString::number(serverPort)));
+    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + QString::number(serverTcpPort)));
 
-    if(tcpSocket->waitForConnected(3000)){
-        //Connection successful
-        emit(connectionStatusChanged("Connected to server"));
-        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverPort)));
-
+    if(clientTcpSocket->waitForConnected()) // TODO: fails on windows... correct it
+    {
         QByteArray block; // for temporarily storing the data to be sent
         QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -75,38 +86,42 @@ void StreamReceiver::newConnect()
 
         out << (quint16)0;
         //out << tr ("I'm a client" + clientPort );
-        out << QString::number(clientPort);
+        out << clientUdpPort;
         out.device()->seek(0);
         out << (quint16)(block.size() - sizeof(quint16));
 
-        tcpSocket->write(block);
+        //QTest::qSleep (2000);
 
-    }else{
-        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + QString::number(serverPort)));
+        clientTcpSocket->write(block);
+
+        emit(connectionStatusChanged("Connected to server"));
+        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverTcpPort)));
     }
-
-    //emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + serverPort));
+    else
+    {
+        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + QString::number(serverTcpPort)));
+    }
 }
 
 void StreamReceiver::readCommand()
 {
-    QDataStream in(tcpSocket);
+    QDataStream in(clientTcpSocket);
     in.setVersion(QDataStream::Qt_5_0);
 
     if(blockSize == 0){
-        if(tcpSocket->bytesAvailable() < (int)sizeof(quint16)) return;
+        if(clientTcpSocket->bytesAvailable() < (int)sizeof(quint16)) return;
         in >> blockSize;
     }
 
-    if(tcpSocket->bytesAvailable() < blockSize) return;
+    if(clientTcpSocket->bytesAvailable() < blockSize) return;
     blockSize = 0;
 
-    quint8 cid = tcpSocket->peek(1).toUInt();
+    quint8 cid = clientTcpSocket->peek(1).toUInt();
 
     switch (cid)
     {
         case Common::CommandID::MESSAGE:
-            readMessage(tcpSocket->readAll());
+            readMessage(clientTcpSocket->readAll());
             break;
 
         case Common::CommandID::DESTINATION:
@@ -124,12 +139,12 @@ void StreamReceiver::readMessage(const QByteArray &data)
 void StreamReceiver::readyRead()
 {
     QByteArray buffer;
-    buffer.resize(socket->pendingDatagramSize());
+    buffer.resize(clientUdpSocket->pendingDatagramSize());
 
     QHostAddress server;
     quint16 serverPort;
 
-    socket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
+    clientUdpSocket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
 
     playbuff->write(buffer.data(), buffer.size());
 
@@ -139,7 +154,7 @@ void StreamReceiver::readyRead()
     //    socket->writeDatagram(buffer, c->address, c->port);
     //}
 
-    qDebug() << "Message (readyRead()):" << buffer.size();
+    qDebug() << "Message (readyRead()):" << buffer.size() << QTime::currentTime(); // TODO: zakaj so umes nicni paketi?
 }
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
@@ -159,7 +174,7 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
                      "and check that the host name and port settings are correct.";
         break;
     default:
-        connStatus = "The following error occurred: " + tcpSocket->errorString();
+        connStatus = "The following error occurred: " + clientTcpSocket->errorString();
     }
     qDebug() << connStatus;
     emit(connectionStatusChanged(connStatus));

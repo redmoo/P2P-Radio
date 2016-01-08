@@ -23,7 +23,7 @@ public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
     void sendMessage(QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
-    void startStream();
+    void startStream(QString ip, bool chain_streaming);
 
 private:
     void addClient(Common::ClientInfo *); // TODO: namespace!!
@@ -39,7 +39,10 @@ private slots:
     void write(QVector<QByteArray> data);
 
 private:
-    QUdpSocket *socket;
+    QHostAddress serverAddress;
+    qint16 serverUdpPort;
+    qint16 serverTcpPort;
+    QUdpSocket *serverUdpSocket;
     QTcpServer *tcpServer;
     QStringList messages;
     QNetworkSession *networkSession;
