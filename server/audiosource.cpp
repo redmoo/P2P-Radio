@@ -10,7 +10,7 @@ void AudioSource::decode(){
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
     //decoder->setSourceFilename(QUrl("qrc:/habibi.mp3").toLocalFile());
-    qDebug() << QFile("C:\\Projects\\P2P-Radio\\proto.mp3").exists();
+    qDebug() << "Source file found:" << QFile("C:\\Projects\\P2P-Radio\\proto.mp3").exists();
     decoder->setSourceFilename("C:\\Projects\\P2P-Radio\\proto.mp3");
     decoder->connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();

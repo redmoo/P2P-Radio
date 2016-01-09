@@ -22,10 +22,10 @@ void StreamReceiver::init()
 
     clientUdpSocket = new QUdpSocket(this);
 
-    connect(clientUdpSocket, &QIODevice::readyRead, this, &StreamReceiver::readyRead);
+    connect(clientUdpSocket, &QIODevice::readyRead, this, &StreamReceiver::dataReceived);
 
-    clientUdpSocket->bind(clientAddress, clientUdpPort);
-    //clientUdpSocket->connectToHost(serverAddress, serverUdpPort, QIODevice::ReadOnly); // TODO: maybe fools the routers. may be necessary to connect on the server side too
+    qDebug() << "UDP bind successful:" << clientUdpSocket->bind(QHostAddress::Any, clientUdpPort); // TODO: bind to ANY
+    //clientUdpSocket->connectToHost(serverAddress, serverUdpPort, QIODevice::ReadWrite); // TODO: maybe fools the routers. may be necessary to connect on the server side too
 
 
     /**** TCP SETUP ****/ // TODO: dej vse v connect tko da k user stisne lahk se vpise prej ip pa to...
@@ -116,7 +116,8 @@ void StreamReceiver::readCommand()
     if(clientTcpSocket->bytesAvailable() < blockSize) return;
     blockSize = 0;
 
-    quint8 cid = clientTcpSocket->peek(1).toUInt();
+    quint8 cid;
+    in >> cid;
 
     switch (cid)
     {
@@ -124,8 +125,11 @@ void StreamReceiver::readCommand()
             readMessage(clientTcpSocket->readAll());
             break;
 
-        case Common::CommandID::DESTINATION:
+        case Common::CommandID::STREAM:
+            updateDestinations(clientTcpSocket->readAll());
             break;
+
+        default: qDebug() << "Command ID incorrect!";
     }
 }
 
@@ -133,28 +137,52 @@ void StreamReceiver::readMessage(const QByteArray &data)
 {
     QString message = (Common::MessageCommand().deserialize(data))->message;
     qDebug() << "Message (readMessage()): " + message;
+    //qDebug() << "Pending UDP data size:" << clientUdpSocket->pendingDatagramSize();
     emit(messageChanged(message));
 }
 
-void StreamReceiver::readyRead()
+void StreamReceiver::updateDestinations(const QByteArray &data)
 {
-    QByteArray buffer;
-    buffer.resize(clientUdpSocket->pendingDatagramSize());
+    auto *stream_command = Common::StreamCommand().deserialize(data);
+    qDebug() << "Stream command:" << stream_command->address << stream_command->port << stream_command->reset_destinations;
 
+    if (stream_command->reset_destinations)
+    {
+        clients.clear();
+    }
+    else if (stream_command->address != QHostAddress::LocalHost && stream_command->port != 0)
+    {
+        clients.append(new Common::ClientInfo(stream_command->address, stream_command->port));
+    }
+}
+
+void StreamReceiver::dataReceived()
+{
+    //qDebug() << "New UDP data ready!";
+
+    QByteArray buffer; // TODO: save packets (according to the slowest recipient), send from x packet on, not from current one
     QHostAddress server;
     quint16 serverPort;
 
-    clientUdpSocket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort);
+    while(clientUdpSocket->hasPendingDatagrams())
+    {
+        buffer.resize(clientUdpSocket->pendingDatagramSize());
+        clientUdpSocket->readDatagram(buffer.data(), buffer.size(), &server, &serverPort); // TODO: ce mas connecttohost mors READ od IO uporabt!
 
-    playbuff->write(buffer.data(), buffer.size());
+        playbuff->write(buffer.data(), buffer.size());
 
+        // Pass to clients
+        foreach(auto *c, clients)
+        {
+            quint64 bytes_sent = clientUdpSocket->writeDatagram(buffer, c->address, c->port);
+            //qDebug() << "Bytes sent:" << bytes_sent; // TODO: TEST IT!
 
-    // Pass to clients
-    //foreach(Common::ClientInfo *c, clients){
-    //    socket->writeDatagram(buffer, c->address, c->port);
-    //}
+            if(bytes_sent == -1)
+                qDebug() << "CHUNK TOO BIG! (Client pass down the chain.)";
+        }
 
-    qDebug() << "Message (readyRead()):" << buffer.size() << QTime::currentTime(); // TODO: zakaj so umes nicni paketi?
+        //qDebug() << "Message (readyRead()):" << buffer.size() << QTime::currentTime(); // TODO: zakaj so umes nicni paketi?
+    }
 }
 
 void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)

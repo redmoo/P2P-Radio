@@ -13,6 +13,8 @@ void ServerStreamer::init()
 
     serverUdpSocket = new QUdpSocket(this); // TODO: mogoc most odpret se incoming, pa pol na clientu connecttohost da bo po netu delal!!!! virtualna dvosmerna povezava
 
+    //connect(serverUdpSocket, &QIODevice::bytesWritten, this, &ServerStreamer::datagramSent); // for DEBUG
+
     // TODO: setup from main window.. all of it.
     // also, tole je za INCOMING udp packets ane?
 
@@ -33,8 +35,9 @@ void ServerStreamer::init()
     connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::clientConnected);
 }
 
-void ServerStreamer::startStream(QString ip, bool chain_streaming)
+void ServerStreamer::startStream(QString ip, bool chain)
 {
+    chain_streaming = chain;
     serverAddress = QHostAddress(ip);
     init();
 
@@ -72,17 +75,23 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
         qint16 clientPort;
         in >> clientPort;
 
-        if (QString::number(clientPort).isEmpty())
+        if (QString::number(clientPort).isEmpty()) // TODO: BAD CHECK! correct it
         {
             std::cerr << "Client data took too long to arrive!" << std::endl;
             return;
         }
 
         qDebug() << "Client sent its info. UDP port: " + QString::number(clientPort);
-        clients << new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort);
 
         //serverUdpSocket->connectToHost(clientConnection->localAddress(), clientPort);
         // We have obtained sub-socket, connection has been established
+
+        auto *new_client = new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort);
+
+        if (chain_streaming && !clients.isEmpty())
+            sendStreamInstruction(clients.last(), new_client);
+
+        clients << new_client;
 
         // TODO: tole vse samo ce se connecta!!
         connect(clientConnection, &QAbstractSocket::disconnected, clientConnection, &QAbstractSocket::deleteLater);
@@ -92,7 +101,7 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
     }
 }
 
-void ServerStreamer::clientDisconnected()
+void ServerStreamer::clientDisconnected() // TODO: kaj pa ce se dva naenkrat disconnectata???? a se da kako queue nardit?
 {
     QMutableVectorIterator<Common::ClientInfo *> iterator(clients);
 
@@ -101,25 +110,38 @@ void ServerStreamer::clientDisconnected()
         auto c = iterator.next();
         qDebug() << "DC:" << c->connection->socketDescriptor() << c->connection->isOpen() << c->connection->state();
 
+        // TODO: POPRAV FAKING ITERATORJE NOOB
+
         if (c->connection->state() == QAbstractSocket::UnconnectedState)
         {
+            if (chain_streaming && iterator.hasPrevious() && iterator.hasNext())
+            {
+                qDebug() << "PIZDA ENA";
+                sendStreamInstruction(iterator.peekPrevious(), iterator.peekNext());
+            }
+            else if (chain_streaming && iterator.hasPrevious()) // TODO: sleepy.. sej je to ok ne? :)
+            {
+                qDebug() << "PIZDA DVA";
+                sendStreamInstruction(iterator.peekPrevious(), new Common::ClientInfo());
+            }
+
             c->connection->close();
             iterator.remove();
         }
-        // TODO: kle nardis prevezavo povezav med klienti in dolocs od kje kdo posilja, k en linked list? mogoce se kr to res ponuca...
     }
 
     emit clientCountChanged(clients.length());
 }
 
-void ServerStreamer::write(QVector<QByteArray> data)
+void ServerStreamer::write(const QVector<QByteArray> data)
 {
-    //qDebug() << "Writing to clients!";
-
     foreach (auto chunk, data)
     {
-        foreach(auto *c, clients){
-            quint64 bytes_sent = serverUdpSocket->writeDatagram(chunk, chunk.size(), c->address, c->port);
+        for (int i = 0; i < clients.length(); i++)
+        {
+            if (chain_streaming && i > 0) return;
+
+            quint64 bytes_sent = serverUdpSocket->writeDatagram(chunk, chunk.size(), clients[i]->address, clients[i]->port);
             //qDebug() << "Bytes sent:" << bytes_sent;
 
             if(bytes_sent == -1)
@@ -128,7 +150,11 @@ void ServerStreamer::write(QVector<QByteArray> data)
     }
 }
 
-void ServerStreamer::sendMessage(QVector<Common::ClientInfo *> dsts) // TODO: args: paket, recipient vector, default = all
+void ServerStreamer::datagramSent(){
+    qDebug() << "Data packet sent.";
+}
+
+void ServerStreamer::sendMessage(const QVector<Common::ClientInfo *> dsts) // TODO: args: paket, recipient vector, default = all
 {
     QByteArray block; // for temporarily storing the data to be sent
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -150,6 +176,21 @@ void ServerStreamer::sendMessage(QVector<Common::ClientInfo *> dsts) // TODO: ar
     qDebug() << "Server: Ping message sent.";
 }
 
-void ServerStreamer::addClient(Common::ClientInfo *c){
-    clients << c;
+// TODO: ^˘ zdruzi enake dele
+void ServerStreamer::sendStreamInstruction(const Common::ClientInfo *src, const Common::ClientInfo *dst, bool reset)
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out.setVersion(QDataStream::Qt_5_0);
+
+    out << (quint16)0;
+    block.append(Common::StreamCommand(dst->address, dst->port, reset).serialize());
+    out.device()->seek(0);
+    out << (quint16)(block.size() - sizeof(quint16));
+
+    src->connection->write(block);
+    src->connection->waitForBytesWritten(); // TODO: windows! see doc also ZAKAJ JE KLE KDAJ UNCONNECTED????
+
+    qDebug() << "Server: Stream command sent.";
 }

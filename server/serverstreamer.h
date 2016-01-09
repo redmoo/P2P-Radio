@@ -22,11 +22,11 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init();
-    void sendMessage(QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
-    void startStream(QString ip, bool chain_streaming);
+    void sendMessage(const QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
+    void startStream(QString ip, bool chain);
 
 private:
-    void addClient(Common::ClientInfo *); // TODO: namespace!!
+    void sendStreamInstruction(const Common::ClientInfo *src, const Common::ClientInfo *dst, bool reset = true);
 
 signals:
     void clientCountChanged(int);
@@ -36,17 +36,20 @@ private slots:
     void clientDisconnected();
     //void sessionOpened();
     //void sendFortune();
-    void write(QVector<QByteArray> data);
+    void write(const QVector<QByteArray> data);
+    void datagramSent();
 
 private:
     QHostAddress serverAddress;
-    qint16 serverUdpPort;
-    qint16 serverTcpPort;
+    quint16 serverUdpPort;
+    quint16 serverTcpPort;
+
     QUdpSocket *serverUdpSocket;
     QTcpServer *tcpServer;
-    QStringList messages;
-    QNetworkSession *networkSession;
+
+    bool chain_streaming;
     QVector<Common::ClientInfo *> clients;
+
     Player *player;
 };
 

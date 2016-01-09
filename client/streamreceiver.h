@@ -21,6 +21,7 @@ public:
 
 private:
     void readMessage(const QByteArray &data);
+    void updateDestinations(const QByteArray &data);
 
 signals:
     void messageChanged(QString);
@@ -29,7 +30,7 @@ signals:
     void connectButtonToggle(bool);
 
 private slots:
-    void readyRead();
+    void dataReceived();
     void displayError(QAbstractSocket::SocketError socketError);
     void readCommand();
     //QString readMessage();
@@ -39,20 +40,20 @@ private slots:
     //void sessionOpened();
 
 private:
+    QHostAddress serverAddress;
+    //quint16 serverUdpPort;
+    quint16 serverTcpPort;
+
+    QHostAddress clientAddress;
+    quint16 clientUdpPort;
+
     QUdpSocket *clientUdpSocket;
     QTcpSocket *clientTcpSocket;
-    QNetworkSession *networkSession;
+
     quint16 blockSize;
     QIODevice *playbuff;
-    //QBuffer *playbuff;
-    QList<Common::ClientInfo *> clients;
-    QHostAddress serverAddress;
-    qint16 serverUdpPort;
-    qint16 serverTcpPort;
-    qint16 clientUdpPort;
-    QHostAddress clientAddress;
 
-
+    QVector<Common::ClientInfo *> clients;
 };
 
 #endif // STREAMRECEIVER_H
