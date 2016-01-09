@@ -17,14 +17,12 @@ SOURCES +=  main.cpp\
             main_window.cpp \
             serverstreamer.cpp \
             player.cpp \
-            ../common/clientinfo.cpp \
-    audiosource.cpp
+            audiosource.cpp
 
 HEADERS +=  main_window.h \
             serverstreamer.h \
             player.h \
-            ../common/clientinfo.h \
-    audiosource.h
+            audiosource.h
 
 FORMS += main_window.ui
 

@@ -1,6 +1,7 @@
+#include "common.h"
 #include "player.h"
 #include "audiosource.h"
-#include "common.h"
+
 
 Player::Player(QObject *parent) : QObject(parent)
 {

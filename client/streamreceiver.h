@@ -1,13 +1,14 @@
 #ifndef STREAMRECEIVER_H
 #define STREAMRECEIVER_H
 
+#include "common.h"
+
 #include <QObject>
 #include <QUdpSocket>
 #include <QTcpSocket>
 #include <QNetworkSession>
 #include <QtNetwork>
 #include <QNetworkInterface>
-#include "common.h"
 
 
 class StreamReceiver : public QObject

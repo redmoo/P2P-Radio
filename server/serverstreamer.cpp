@@ -1,7 +1,9 @@
 #include "serverstreamer.h"
+
 #include <QTime>
 #include <iostream>
 #include <QtTest/QTest>
+
 
 ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent) {}
 

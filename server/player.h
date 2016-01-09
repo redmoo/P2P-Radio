@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "audiosource.h"
+
 #include <QObject>
 #include <QMediaPlayer>
 #include <QAudioBuffer>
@@ -8,7 +10,7 @@
 #include <QFile>
 #include <QAudioDecoder>
 #include <QAudioOutput>
-#include "audiosource.h"
+
 
 class Player : public QObject
 {

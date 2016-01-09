@@ -25,6 +25,7 @@ HEADERS += main_window.h \
 FORMS += main_window.ui
 
 INCLUDEPATH += ../common
+
 CONFIG += c++11 testlib
 
 #LIBS += -L../common -lcommon

@@ -1,6 +1,7 @@
 #include "audiosource.h"
 #include "common.h"
 
+
 AudioSource::AudioSource()
 {
     this->open(QBuffer::ReadWrite);
