@@ -107,22 +107,21 @@ void ServerStreamer::clientDisconnected() // TODO: kaj pa ce se dva naenkrat dis
 
     while(iterator.hasNext())
     {
+        auto p = iterator.hasPrevious() ? iterator.peekPrevious() : NULL;
         auto c = iterator.next();
         qDebug() << "DC:" << c->connection->socketDescriptor() << c->connection->isOpen() << c->connection->state();
 
-        // TODO: POPRAV FAKING ITERATORJE NOOB
-
         if (c->connection->state() == QAbstractSocket::UnconnectedState)
         {
-            if (chain_streaming && iterator.hasPrevious() && iterator.hasNext())
+            if (chain_streaming && p != NULL && iterator.hasNext())
             {
-                qDebug() << "PIZDA ENA";
-                sendStreamInstruction(iterator.peekPrevious(), iterator.peekNext());
+                qDebug() << "Connecting previous and next client.";
+                sendStreamInstruction(p, iterator.peekNext());
             }
-            else if (chain_streaming && iterator.hasPrevious()) // TODO: sleepy.. sej je to ok ne? :)
+            else if (chain_streaming && p != NULL) // TODO: sleepy.. sej je to ok ne? :)
             {
-                qDebug() << "PIZDA DVA";
-                sendStreamInstruction(iterator.peekPrevious(), new Common::ClientInfo());
+                qDebug() << "Last client to stop sending chain packets.";
+                sendStreamInstruction(p, new Common::ClientInfo());
             }
 
             c->connection->close();
