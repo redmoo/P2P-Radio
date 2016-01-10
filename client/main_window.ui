@@ -41,6 +41,9 @@
     </property>
    </widget>
    <widget class="QLineEdit" name="clientConnectionInfo">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>120</x>

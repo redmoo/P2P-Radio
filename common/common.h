@@ -55,14 +55,16 @@ public:
 
     struct StreamCommand
     {
-        StreamCommand(bool reset = true) // stop streaming, redundant?
-            : address(QHostAddress::LocalHost)
+        StreamCommand() {} // WHAT THE FUCK
+
+        StreamCommand(bool reset) // stop streaming, redundant?
+            : address("127.0.0.1 lol") // ? LOCALHOST?
             , port(0)
             , reset_destinations(reset)
             , cid(STREAM)
         {}
 
-        StreamCommand(QHostAddress add, quint16 p, bool reset = true) // TODO: probi z ClientInfo
+        StreamCommand(QString add, quint16 p, bool reset = true) // TODO: probi z ClientInfo
             : address(add)
             , port(p)
             , reset_destinations(reset)
@@ -84,23 +86,25 @@ public:
             return byteArray;
         }
 
-        StreamCommand* deserialize(const QByteArray& byteArray)
+        void deserialize(const QByteArray& byteArray, bool all = false)
         {
             QDataStream stream(byteArray);
             stream.setVersion(QDataStream::Qt_5_0);
 
-            cid = STREAM; // TODO: is this a correct way of doing things?
+            if (!all) cid = STREAM; // TODO: is this a correct way of doing things?
+            else stream >> cid;
+
             stream >> address
                    >> port
                    >> reset_destinations;
 
-            return this;
+            //return this;
         }
 
         quint8 cid;
         bool reset_destinations;
 
-        QHostAddress address;
+        QString address;
         quint16 port;
     };
 

@@ -26,7 +26,7 @@ FORMS += main_window.ui
 
 INCLUDEPATH += ../common
 
-CONFIG += c++11 testlib
+CONFIG += c++11 qtestlib
 
 #LIBS += -L../common -lcommon
 

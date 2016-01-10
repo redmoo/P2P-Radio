@@ -40,7 +40,7 @@ private slots:
     void datagramSent();
 
 private:
-    QHostAddress serverAddress;
+    //QHostAddress serverAddress;
     quint16 serverUdpPort;
     quint16 serverTcpPort;
 

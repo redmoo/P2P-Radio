@@ -45,7 +45,7 @@ private:
     //quint16 serverUdpPort;
     quint16 serverTcpPort;
 
-    QHostAddress clientAddress;
+    //QHostAddress clientAddress;
     quint16 clientUdpPort;
 
     QUdpSocket *clientUdpSocket;

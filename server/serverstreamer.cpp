@@ -28,7 +28,8 @@ void ServerStreamer::init()
 
     tcpServer = new QTcpServer(this);
 
-    if (!tcpServer->listen(serverAddress, serverTcpPort)){
+    if (!tcpServer->listen(QHostAddress::Any, serverTcpPort))
+    {
         qDebug () << tcpServer->errorString();
         tcpServer->close();
         return;
@@ -40,7 +41,7 @@ void ServerStreamer::init()
 void ServerStreamer::startStream(QString ip, bool chain)
 {
     chain_streaming = chain;
-    serverAddress = QHostAddress(ip);
+    //serverAddress = QHostAddress(ip); // unneeded
     init();
 
     player = new Player;
@@ -52,7 +53,8 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
     qint16 blockSize = 0;
 
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    qDebug() << "Client ID: " << clientConnection->socketDescriptor();
+    qDebug() << "Local addr/port:" << clientConnection->localAddress() << clientConnection->localPort();
+    qDebug() << "Peer addr/port:" << clientConnection->peerAddress() << clientConnection->peerPort() << clientConnection->peerName();
 
     // TODO: a ce tole gre cez se pol klice readyread pa gre v uno metodo takoj pred ostalimi povezavami? kr sele tm se pol connecta zares naj!
     if(clientConnection->waitForReadyRead()) // TODO: spremen zarad windowsov! see documentation. verjetn bi jih blo za v queue dat pa pol spodi processat...
@@ -74,10 +76,10 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
 
         in >> blockSize; // TODO: read the above
 
-        qint16 clientPort;
+        qint16 clientPort = 0;
         in >> clientPort;
 
-        if (QString::number(clientPort).isEmpty()) // TODO: BAD CHECK! correct it
+        if (clientPort == 0) // nebo ok... kr pac bo druga cifra, se kr pa ne taprava
         {
             std::cerr << "Client data took too long to arrive!" << std::endl;
             return;
@@ -88,7 +90,7 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
         //serverUdpSocket->connectToHost(clientConnection->localAddress(), clientPort);
         // We have obtained sub-socket, connection has been established
 
-        auto *new_client = new Common::ClientInfo(clientConnection, clientConnection->localAddress(), clientPort);
+        auto *new_client = new Common::ClientInfo(clientConnection, clientConnection->peerAddress(), clientPort);
 
         if (chain_streaming && !clients.isEmpty())
             sendStreamInstruction(clients.last(), new_client);
@@ -120,7 +122,7 @@ void ServerStreamer::clientDisconnected() // TODO: kaj pa ce se dva naenkrat dis
                 qDebug() << "Connecting previous and next client.";
                 sendStreamInstruction(p, iterator.peekNext());
             }
-            else if (chain_streaming && p != NULL) // TODO: sleepy.. sej je to ok ne? :)
+            else if (chain_streaming && p != NULL)
             {
                 qDebug() << "Last client to stop sending chain packets.";
                 sendStreamInstruction(p, new Common::ClientInfo());
@@ -141,7 +143,7 @@ void ServerStreamer::write(const QVector<QByteArray> data)
         for (int i = 0; i < clients.length(); i++)
         {
             if (chain_streaming && i > 0) return;
-
+            //qDebug() << "UDP to address:" << clients[i]->address;
             quint64 bytes_sent = serverUdpSocket->writeDatagram(chunk, chunk.size(), clients[i]->address, clients[i]->port);
             //qDebug() << "Bytes sent:" << bytes_sent;
 
@@ -186,12 +188,19 @@ void ServerStreamer::sendStreamInstruction(const Common::ClientInfo *src, const 
     out.setVersion(QDataStream::Qt_5_0);
 
     out << (quint16)0;
-    block.append(Common::StreamCommand(dst->address, dst->port, reset).serialize());
+    auto t = Common::StreamCommand(dst->address.toString(), dst->port, reset);
+    auto test = t.serialize();
+    auto sc = Common::StreamCommand();
+    sc.deserialize(test, true);
+    qDebug() << "C add:" << sc.address << sc.port << sc.reset_destinations;
+
+
+    block.append(test);
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
     src->connection->write(block);
     src->connection->waitForBytesWritten(); // TODO: windows! see doc also ZAKAJ JE KLE KDAJ UNCONNECTED????
 
-    qDebug() << "Server: Stream command sent.";
+    qDebug() << "Server: Stream command sent:" << t.address << t.port << t.reset_destinations;
 }

@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLineEdit" name="connectionInfoLine">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>120</x>

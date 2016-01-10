@@ -64,7 +64,7 @@ QString getIPAddress()
 void StreamReceiver::newConnect(QString server_ip, QString client_ip)
 {
     serverAddress = QHostAddress(server_ip);
-    clientAddress = QHostAddress(client_ip);
+    //clientAddress = QHostAddress(client_ip); // UNNEEDED
 
     blockSize = 0;
 
@@ -93,6 +93,10 @@ void StreamReceiver::newConnect(QString server_ip, QString client_ip)
         //QTest::qSleep (2000);
 
         clientTcpSocket->write(block);
+
+        // TODO: REMOVE TEST
+        clientTcpSocket->flush();
+        clientTcpSocket->waitForBytesWritten(3000);
 
         emit(connectionStatusChanged("Connected to server"));
         emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverTcpPort)));
@@ -143,17 +147,21 @@ void StreamReceiver::readMessage(const QByteArray &data)
 
 void StreamReceiver::updateDestinations(const QByteArray &data)
 {
-    auto *stream_command = Common::StreamCommand().deserialize(data);
-    qDebug() << "Stream command:" << stream_command->address << stream_command->port << stream_command->reset_destinations;
+    auto stream_command = Common::StreamCommand();
+    stream_command.deserialize(data); // TODOOOOO: A JE KLE POINTER???
+    qDebug() << "Stream command:" << stream_command.address << stream_command.port << stream_command.reset_destinations;
 
-    if (stream_command->reset_destinations)
+    if (stream_command.reset_destinations)
     {
         clients.clear();
     }
-    else if (stream_command->address != QHostAddress::LocalHost && stream_command->port != 0)
+    if (stream_command.address != QString("127.0.0.1") && stream_command.port != 0) // POPRAVI!
     {
-        clients.append(new Common::ClientInfo(stream_command->address, stream_command->port));
+        auto *new_client = new Common::ClientInfo(QHostAddress(stream_command.address), stream_command.port);
+        clients.append(new_client);
     }
+    else if (stream_command.address == QString(""))
+        qDebug() << "Client chain: QHostAddress() -> this shouldn't happen!";
 }
 
 void StreamReceiver::dataReceived()
