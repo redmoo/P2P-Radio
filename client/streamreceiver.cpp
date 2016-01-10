@@ -71,6 +71,7 @@ void StreamReceiver::newConnect(QString server_ip, QString server_port, QString 
         // Set the data stream version, the client and server side use the same version
         out.setVersion(QDataStream::Qt_5_0);
 
+        // Each packet first holds the size of the data it carries.
         out << (quint16)0;
         out << clientUdpSocket->localPort();
         out.device()->seek(0);
@@ -92,6 +93,9 @@ void StreamReceiver::newConnect(QString server_ip, QString server_port, QString 
 
 void StreamReceiver::readCommand()
 {
+    // Each packet first holds the size of the data it carries.
+    // After the size comes the packet ID and then the actual data which gets deserialized.
+
     QDataStream in(clientTcpSocket);
     in.setVersion(QDataStream::Qt_5_0);
 
@@ -129,6 +133,8 @@ void StreamReceiver::readMessage(const QByteArray &data)
 
 void StreamReceiver::updateDestinations(const QByteArray &data)
 {
+    // Update the clients to which this particular client sends received data.
+
     auto stream_command = Common::StreamCommand();
     stream_command.deserialize(data);
     qDebug() << "Stream command:" << stream_command.address << stream_command.port << stream_command.reset_destinations;

@@ -12,6 +12,7 @@ void ServerStreamer::init(QString ip, QString port)
     serverUdpSocket = new QUdpSocket(this);
     tcpServer = new QTcpServer(this);
 
+    // Port = 0 means that the port is selected automatically.
     if (!tcpServer->listen(ip.isEmpty() ? QHostAddress::Any : QHostAddress(ip),
                            port.isEmpty() ? 0 : port.toUInt()))
     {
@@ -103,6 +104,12 @@ void ServerStreamer::clientConnected()
 
 void ServerStreamer::clientDisconnected()
 {
+    // When a client disconnects, there are 3 possible outcomes.
+    // 1.: First client disconnected. Server starts sending data to the second (new first) client.
+    // 2.: Last client disconnected. Second to last (new last) client needs to stop sending data.
+    // 3.: Client in the middle of two other clients disconnected.
+    //     Previous client in the chain needs to send data to the next client in the chain.
+
     QMutableVectorIterator<Common::ClientInfo *> iterator(clients);
 
     while(iterator.hasNext())
