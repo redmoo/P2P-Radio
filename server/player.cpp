@@ -3,7 +3,7 @@
 #include "audiosource.h"
 
 
-Player::Player(QObject *parent) : QObject(parent)
+Player::Player(QString file, QObject *parent) : music_file(file), QObject(parent)
 {
     player = new QMediaPlayer;
     // ...
@@ -11,28 +11,32 @@ Player::Player(QObject *parent) : QObject(parent)
     //player->setMedia(QUrl::fromLocalFile("/home/nikolai5/Dropbox/School/RZP/Projekt/P2P-Radio/habibi.mp3"));
     //player->setMedia(QUrl::fromLocalFile("/habibi.mp3"));
     //Settings::resourcePath();
-    player->setMedia(QUrl("qrc:/habibi.mp3"));
+    //player->setMedia(QUrl("qrc:/habibi.mp3"));
     //player->setVolume(0);
 
-    QAudioProbe *probe = new QAudioProbe;
+    //QAudioProbe *probe = new QAudioProbe;
 
     // ... configure the audio recorder (skipped)
 
-    connect(probe, &QAudioProbe::audioBufferProbed, this, &Player::processBuffer);
+    //connect(probe, &QAudioProbe::audioBufferProbed, this, &Player::processBuffer);
 
-    probe->setSource(player); // Returns true, hopefully.
+    //probe->setSource(player); // Returns true, hopefully.
 
 
     //player->play();
 
-    source = new AudioSource();
-    source->decode();
+    source = new AudioSource(); // TODO: A SPLOH SE RABMO PLAYER FILE??????????????????????
+    source->decode(file);
 
     auto *audio = new QAudioOutput(Common::getFormat(), this);
     audio->setVolume(0.0);
     audio->start(source);
 }
 
+QString Player::currentlyPlaying()
+{
+    return QFileInfo(music_file).fileName();
+}
 
 void Player::processBuffer(QAudioBuffer abuff)
 {

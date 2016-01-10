@@ -17,6 +17,7 @@ public:
     ~MainWindow();
 
 public slots:
+    void updateClientConnectionInfo(QString ip, quint16 port);
     void updateMessageDisplay(QString message);
     void updateConnectionStatusDisplay(QString status);
     void updateActivityLogDisplay(QString activity);

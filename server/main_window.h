@@ -17,9 +17,11 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pingCLientsButton_clicked();
     void updateClientCount(int);
+    void updateConnectionInfo(QString ip, quint16 port);
+    void on_pingClientsButton_clicked();
     void on_startStream_clicked();
+    void on_fileButton_clicked();
 
 private:
     Ui::MainWindow *ui;

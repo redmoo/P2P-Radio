@@ -15,9 +15,11 @@
 class Player : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit Player(QObject *parent = 0);
-    AudioSource *source;
+    explicit Player(QString file, QObject *parent = 0);
+    QString currentlyPlaying();
+    AudioSource *source; // NESME BIT TO PUBLIC WTFFFF
 
 signals:
     void bufferSend(QByteArray);
@@ -29,6 +31,7 @@ public slots:
 private:
     QMediaPlayer *player;
     QAudioDecoder *decoder;
+    QString music_file;
 
 };
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>502</width>
-    <height>389</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,14 @@
    <widget class="QLineEdit" name="serverConnectionInfo">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>70</x>
       <y>10</y>
-      <width>371</width>
-      <height>20</height>
+      <width>221</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>192.168.0.100</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -32,8 +32,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>111</width>
-      <height>16</height>
+      <width>51</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -42,18 +42,21 @@
    </widget>
    <widget class="QLineEdit" name="clientConnectionInfo">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>70</x>
       <y>40</y>
-      <width>371</width>
-      <height>20</height>
+      <width>221</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>192.168.0.103</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Leave empty for default</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -61,8 +64,8 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>111</width>
-      <height>16</height>
+      <width>51</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -86,9 +89,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>105</y>
+      <y>101</y>
       <width>101</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -102,9 +105,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>124</y>
+      <y>130</y>
       <width>46</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -115,9 +118,9 @@
     <property name="geometry">
      <rect>
       <x>119</x>
-      <y>103</y>
+      <y>99</y>
       <width>371</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -139,8 +142,8 @@
    <widget class="QPlainTextEdit" name="activityDisplay">
     <property name="geometry">
      <rect>
-      <x>119</x>
-      <y>153</y>
+      <x>120</x>
+      <y>160</y>
       <width>371</width>
       <height>180</height>
      </rect>
@@ -155,10 +158,10 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>119</x>
-      <y>123</y>
+      <x>120</x>
+      <y>130</y>
       <width>371</width>
-      <height>20</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -168,14 +171,63 @@
    <widget class="QLabel" name="activityLabel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>150</y>
+      <x>11</x>
+      <y>157</y>
       <width>51</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>Activity:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>10</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TCP port:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="serverTcpPortLine">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>10</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>40</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>UDP port:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="clientUdpPortLine">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>40</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Empty for default</string>
     </property>
    </widget>
   </widget>

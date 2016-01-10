@@ -14,10 +14,11 @@
 class StreamReceiver : public QObject
 {
     Q_OBJECT
+
 public:
     explicit StreamReceiver(QObject *parent = 0);
-    void init();
-    void newConnect(QString server_ip, QString client_ip);
+    void init(QString client_address, QString client_udp_port);
+    void newConnect(QString server_ip, QString server_port, QString client_ip, QString client_port);
     void addClient(Common::ClientInfo *);
 
 private:
@@ -25,6 +26,7 @@ private:
     void updateDestinations(const QByteArray &data);
 
 signals:
+    void connectionInfoChanged(QString, quint16);
     void messageChanged(QString);
     void connectionStatusChanged(QString);
     void activityLogChanged(QString);
@@ -34,19 +36,14 @@ private slots:
     void dataReceived();
     void displayError(QAbstractSocket::SocketError socketError);
     void readCommand();
-    //QString readMessage();
-    //void doConnectTcp();
-    //void requestNewFortune();
-    //void readFortune();
-    //void sessionOpened();
 
 private:
-    QHostAddress serverAddress;
+    //QHostAddress serverAddress;
     //quint16 serverUdpPort;
-    quint16 serverTcpPort;
+    //quint16 serverTcpPort;
 
     //QHostAddress clientAddress;
-    quint16 clientUdpPort;
+    //quint16 clientUdpPort;
 
     QUdpSocket *clientUdpSocket;
     QTcpSocket *clientTcpSocket;

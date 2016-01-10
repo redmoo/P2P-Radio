@@ -8,9 +8,10 @@
 class AudioSource : public QBuffer
 {
     Q_OBJECT
+
 public:
     AudioSource();
-    void decode();
+    void decode(QString file);
     qint64 readData(char *data, qint64 maxlen);
 
 private:

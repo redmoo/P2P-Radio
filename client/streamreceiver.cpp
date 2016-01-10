@@ -7,28 +7,37 @@ StreamReceiver::StreamReceiver(QObject *parent) : QObject(parent)
 {
 }
 
-void StreamReceiver::init()
+void StreamReceiver::init(QString client_address, QString client_udp_port)
 {
     /**** UDP SETUP ****/
-
-    //serverAddress = QHostAddress("193.2.178.92");
-    //serverAddress = QHostAddress("109.182.180.107");
-    //serverAddress = QHostAddress(server_ip);
-    //serverUdpPort = 1234; // TODO: TOLE POSLE SERVER NAZAJ CLIENTU PO MESSAGU PO USPESNI POVEZAVI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    serverTcpPort = 6666;
-
-    //clientAddress = QHostAddress(client_ip); // TODO: a se da to avtomaticn potegnt vn... oz naj user vpise ob connectanju!
-    clientUdpPort = 1233;
 
     clientUdpSocket = new QUdpSocket(this);
 
     connect(clientUdpSocket, &QIODevice::readyRead, this, &StreamReceiver::dataReceived);
+    qDebug() << "UDP bind successful:" << clientUdpSocket->bind(client_address.isEmpty() ? QHostAddress::Any : QHostAddress(client_address),
+                                                                client_udp_port.isEmpty() ? 0 : client_udp_port.toUInt());
 
-    qDebug() << "UDP bind successful:" << clientUdpSocket->bind(QHostAddress::Any, clientUdpPort); // TODO: bind to ANY
-    //clientUdpSocket->connectToHost(serverAddress, serverUdpPort, QIODevice::ReadWrite); // TODO: maybe fools the routers. may be necessary to connect on the server side too
+    if (client_address.isEmpty()) // TODO: common??? vsaj metoda...
+    {
+        QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+        // use the first non-localhost IPv4 address
+        for (int i = 0; i < ipAddressesList.size(); ++i)
+        {
+            if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+                ipAddressesList.at(i).toIPv4Address())
+            {
+                client_address = ipAddressesList.at(i).toString();
+                break;
+            }
+        }
+        // if we did not find one, use IPv4 localhost
+        if (client_address.isEmpty())
+            client_address = QHostAddress(QHostAddress::LocalHost).toString();
+    }
 
+    emit(connectionInfoChanged(client_address, clientUdpSocket->localPort()));
 
-    /**** TCP SETUP ****/ // TODO: dej vse v connect tko da k user stisne lahk se vpise prej ip pa to...
+    /**** TCP SETUP ****/
 
     clientTcpSocket = new QTcpSocket(this);
 
@@ -44,34 +53,20 @@ void StreamReceiver::init()
     audio->setBufferSize(1024*100);
     playbuff = audio->start(); // TODO: WAT????
 }
-/*
-QString getIPAddress()
+
+void StreamReceiver::newConnect(QString server_ip, QString server_port, QString client_ip, QString client_port)
 {
-    QString ipAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    for (int i = 0; i < ipAddressesList.size(); ++i) {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-            ipAddressesList.at(i).toIPv4Address()) {
-            ipAddress = ipAddressesList.at(i).toString();
-            break;
-        }
-    }
-    if (ipAddress.isEmpty())
-        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-    return ipAddress;
-}
-*/
-void StreamReceiver::newConnect(QString server_ip, QString client_ip)
-{
-    serverAddress = QHostAddress(server_ip);
+    init(client_ip, client_port);
+
+    //serverAddress = QHostAddress(server_ip);
     //clientAddress = QHostAddress(client_ip); // UNNEEDED
 
-    blockSize = 0;
+    blockSize = 0; // TODO: tole lahk v zelje skace drgje...? pa kle se ne rabi
 
     clientTcpSocket->abort();
-    clientTcpSocket->connectToHost(serverAddress, serverTcpPort);
+    clientTcpSocket->connectToHost(QHostAddress(server_ip), server_port.toUInt());
 
-    emit(activityLogChanged("Establishing connection to server at " + serverAddress.toString() + " on port " + QString::number(serverTcpPort)));
+    emit(activityLogChanged("Establishing connection to server at " + server_ip + " on port " + server_port));
 
     if(clientTcpSocket->waitForConnected()) // TODO: fails on windows... correct it
     {
@@ -86,7 +81,7 @@ void StreamReceiver::newConnect(QString server_ip, QString client_ip)
 
         out << (quint16)0;
         //out << tr ("I'm a client" + clientPort );
-        out << clientUdpPort;
+        out << clientUdpSocket->localPort();
         out.device()->seek(0);
         out << (quint16)(block.size() - sizeof(quint16));
 
@@ -99,11 +94,11 @@ void StreamReceiver::newConnect(QString server_ip, QString client_ip)
         clientTcpSocket->waitForBytesWritten(3000);
 
         emit(connectionStatusChanged("Connected to server"));
-        emit(activityLogChanged("Connected to server at " + serverAddress.toString() + " on port " + QString::number(serverTcpPort)));
+        emit(activityLogChanged("Connected to server at " + server_ip + " on port " + server_port));
     }
     else
     {
-        emit(connectionStatusChanged("Unsuccessful connection on " + serverAddress.toString() + ":" + QString::number(serverTcpPort)));
+        emit(connectionStatusChanged("Unsuccessful connection on " + server_ip + ":" + server_port));
     }
 }
 

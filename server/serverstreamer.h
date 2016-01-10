@@ -21,29 +21,25 @@ class ServerStreamer : public QObject
 
 public:
     explicit ServerStreamer(QObject *parent = 0);
-    void init();
-    void sendMessage(const QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
-    void startStream(QString ip, bool chain);
+    void init(QString ip, QString port);
+    void sendMessage(const QString msg = QString(), const QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
+    void startStream(QString ip, QString port, bool chain);
+    void setMusic(QString file);
 
 private:
     void sendStreamInstruction(const Common::ClientInfo *src, const Common::ClientInfo *dst, bool reset = true);
 
 signals:
+    void connectionInfoChanged(QString, quint16);
     void clientCountChanged(int);
 
 private slots:
     void clientConnected();
     void clientDisconnected();
-    //void sessionOpened();
-    //void sendFortune();
     void write(const QVector<QByteArray> data);
     void datagramSent();
 
 private:
-    //QHostAddress serverAddress;
-    quint16 serverUdpPort;
-    quint16 serverTcpPort;
-
     QUdpSocket *serverUdpSocket;
     QTcpServer *tcpServer;
 
@@ -51,6 +47,7 @@ private:
     QVector<Common::ClientInfo *> clients;
 
     Player *player;
+    QString music_file;
 };
 
 #endif // SERVERSTREAMER_H

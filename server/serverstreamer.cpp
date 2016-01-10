@@ -1,51 +1,64 @@
 #include "serverstreamer.h"
 
-#include <QTime>
 #include <iostream>
+#include <QTime>
 #include <QtTest/QTest>
 
 
 ServerStreamer::ServerStreamer(QObject *parent) : QObject(parent) {}
 
-void ServerStreamer::init()
+void ServerStreamer::init(QString ip, QString port)
 {
-    //serverAddress = QHostAddress::LocalHost;
-    //serverUdpPort = 1234; // unneeded?
-    serverTcpPort = 6666;
-
     serverUdpSocket = new QUdpSocket(this); // TODO: mogoc most odpret se incoming, pa pol na clientu connecttohost da bo po netu delal!!!! virtualna dvosmerna povezava
-
     //connect(serverUdpSocket, &QIODevice::bytesWritten, this, &ServerStreamer::datagramSent); // for DEBUG
-
-    // TODO: setup from main window.. all of it.
-    // also, tole je za INCOMING udp packets ane?
-
-    //socket->bind(QHostAddress("193.2.178.92"), 1234);
-    //serverUdpSocket->bind(serverAddress, serverUdpPort);
-    //socket->bind(QHostAddress("109.182.180.107"), 1234);
-
-    // TDODOOOOOOOOOOO: server: bind? connectToHost? / client: connectToHost? udp... to fool the routers
 
     tcpServer = new QTcpServer(this);
 
-    if (!tcpServer->listen(QHostAddress::Any, serverTcpPort))
+    if (!tcpServer->listen(ip.isEmpty() ? QHostAddress::Any : QHostAddress(ip),
+                           port.isEmpty() ? 0 : port.toUInt()))
     {
         qDebug () << tcpServer->errorString();
         tcpServer->close();
         return;
     }
 
+    if (ip.isEmpty())
+    {
+        QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+        // use the first non-localhost IPv4 address
+        for (int i = 0; i < ipAddressesList.size(); ++i)
+        {
+            if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+               ipAddressesList.at(i).toIPv4Address())
+            {
+                ip = ipAddressesList.at(i).toString();
+                break;
+            }
+        }
+        // if we did not find one, use IPv4 localhost
+        if (ip.isEmpty())
+            ip = QHostAddress(QHostAddress::LocalHost).toString();
+    }
+
     connect(tcpServer, &QTcpServer::newConnection, this, &ServerStreamer::clientConnected);
+
+    player = new Player(music_file);
+    connect(player->source, &AudioSource::dataReady, this, &ServerStreamer::write);
+
+    //sendMessage(player->currentlyPlaying()); // TODO: new music... queue... remake player
+
+    emit(connectionInfoChanged(ip, tcpServer->serverPort()));
 }
 
-void ServerStreamer::startStream(QString ip, bool chain)
+void ServerStreamer::startStream(QString ip, QString port, bool chain)
 {
     chain_streaming = chain;
-    //serverAddress = QHostAddress(ip); // unneeded
-    init();
+    init(ip, port);
+}
 
-    player = new Player;
-    connect(player->source, &AudioSource::dataReady, this, &ServerStreamer::write);
+void ServerStreamer::setMusic(QString file)
+{
+    music_file = file; // TODO: check ce obstaja!!!!
 }
 
 void ServerStreamer::clientConnected() // TODO: close all connections when...?
@@ -76,7 +89,7 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
 
         in >> blockSize; // TODO: read the above
 
-        qint16 clientPort = 0;
+        quint16 clientPort = 0;
         in >> clientPort;
 
         if (clientPort == 0) // nebo ok... kr pac bo druga cifra, se kr pa ne taprava
@@ -94,6 +107,10 @@ void ServerStreamer::clientConnected() // TODO: close all connections when...?
 
         if (chain_streaming && !clients.isEmpty())
             sendStreamInstruction(clients.last(), new_client);
+
+        QVector<Common::ClientInfo *> rcps;
+        rcps.append(new_client);
+        sendMessage(player->currentlyPlaying(), rcps);
 
         clients << new_client;
 
@@ -157,19 +174,16 @@ void ServerStreamer::datagramSent(){
     qDebug() << "Data packet sent.";
 }
 
-void ServerStreamer::sendMessage(const QVector<Common::ClientInfo *> dsts) // TODO: args: paket, recipient vector, default = all
+void ServerStreamer::sendMessage(const QString msg, const QVector<Common::ClientInfo *> dsts)
 {
-    QByteArray block; // for temporarily storing the data to be sent
+    QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
-
-    // Use the data stream to write data
-
     out.setVersion (QDataStream::Qt_5_0);
 
-    // Set the data stream version, the client and server side use the same version
+    QString message = msg.isEmpty() ? QString("Ping! Time: %1").arg(QTime::currentTime().toString()) : msg;
 
     out << (quint16)0;
-    block.append(Common::MessageCommand(QString("Ping! Time: %1").arg(QTime::currentTime().toString())).serialize());
+    block.append(Common::MessageCommand(message).serialize());
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
