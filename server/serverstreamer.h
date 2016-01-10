@@ -22,7 +22,7 @@ class ServerStreamer : public QObject
 public:
     explicit ServerStreamer(QObject *parent = 0);
     void init(QString ip, QString port);
-    void sendMessage(const QString msg = QString(), const QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>()); // TODO: prek signala?
+    void sendMessage(const QString msg = QString(), const QVector<Common::ClientInfo *> dsts = QVector<Common::ClientInfo *>());
     void startStream(QString ip, QString port, bool chain);
     void setMusic(QString file);
 

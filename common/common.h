@@ -20,7 +20,7 @@ public:
         STREAM = 3
     };
 
-    struct MessageCommand // TODO: verjetno se ClientInfo sem notr zapakira??
+    struct MessageCommand
     {
         MessageCommand() : cid(MESSAGE) {}
         MessageCommand(QString msg) : message(msg), cid(MESSAGE) {}
@@ -55,16 +55,16 @@ public:
 
     struct StreamCommand
     {
-        StreamCommand() {} // WHAT THE FUCK
+        StreamCommand() {}
 
-        StreamCommand(bool reset) // stop streaming, redundant?
-            : address("127.0.0.1 lol") // ? LOCALHOST?
+        StreamCommand(bool reset)
+            : address("127.0.0.1")
             , port(0)
             , reset_destinations(reset)
             , cid(STREAM)
         {}
 
-        StreamCommand(QString add, quint16 p, bool reset = true) // TODO: probi z ClientInfo
+        StreamCommand(QString add, quint16 p, bool reset = true)
             : address(add)
             , port(p)
             , reset_destinations(reset)
@@ -91,14 +91,12 @@ public:
             QDataStream stream(byteArray);
             stream.setVersion(QDataStream::Qt_5_0);
 
-            if (!all) cid = STREAM; // TODO: is this a correct way of doing things?
+            if (!all) cid = STREAM;
             else stream >> cid;
 
             stream >> address
                    >> port
                    >> reset_destinations;
-
-            //return this;
         }
 
         quint8 cid;
@@ -113,11 +111,6 @@ public:
     //#pragma pack(push, 1)
     struct ClientInfo
     {
-        /*ClientInfo(QTcpSocket *c) : connection(c) // TODO: ne rabs posebi porta pa addressa kr ze iz connectiona potegnes
-        {
-            ID = c->socketDescriptor();
-        }*/
-
         ClientInfo() : address(QHostAddress::LocalHost), port(0), ID(-1) {}
 
         ClientInfo(QHostAddress addr, quint16 port) : address(addr), port(port), ID(-1) {}
@@ -161,7 +154,7 @@ public:
     };
     //#pragma pack(pop)
 
-    struct DataPacket // alignment?
+    struct DataPacket
     {
         DataPacket(unsigned int id, QByteArray qba) : ID(id), data(qba) {}
 

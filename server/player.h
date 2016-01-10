@@ -19,7 +19,7 @@ class Player : public QObject
 public:
     explicit Player(QString file, QObject *parent = 0);
     QString currentlyPlaying();
-    AudioSource *source; // NESME BIT TO PUBLIC WTFFFF
+    AudioSource *source; // temp
 
 signals:
     void bufferSend(QByteArray);

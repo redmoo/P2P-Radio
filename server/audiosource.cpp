@@ -11,11 +11,10 @@ void AudioSource::decode(QString file)
 {
     decoder = new QAudioDecoder(this);
     decoder->setAudioFormat(Common::getFormat());
-    qDebug() << "Source file found:" << QFile(file).exists(); // return if not?
+    qDebug() << "Source file found:" << QFile(file).exists();
     decoder->setSourceFilename(file);
     decoder->connect(decoder, &QAudioDecoder::bufferReady, this, &AudioSource::processBufferDecoder);
     decoder->start();
-    // this->setBuffer(new QByteArray(1024*200,0));
 }
 
 void AudioSource::processBufferDecoder()

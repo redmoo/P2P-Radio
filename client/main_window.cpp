@@ -9,7 +9,7 @@ MainWindow::MainWindow(StreamReceiver *recv, QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("P2P Client");
 
-    connect(receiver, &StreamReceiver::connectionInfoChanged, this, &MainWindow::updateClientConnectionInfo); // WTF
+    connect(receiver, &StreamReceiver::connectionInfoChanged, this, &MainWindow::updateClientConnectionInfo);
     connect(receiver, &StreamReceiver::messageChanged, this, &MainWindow::updateMessageDisplay);
     connect(receiver, &StreamReceiver::connectionStatusChanged, this, &MainWindow::updateConnectionStatusDisplay);
     connect(receiver, &StreamReceiver::activityLogChanged, this, &MainWindow::updateActivityLogDisplay);
@@ -44,7 +44,7 @@ void MainWindow::updateActivityLogDisplay(QString activity)
 
 void MainWindow::updateConnectButton(bool toggle)
 {
-    ui->receiveButton->setEnabled(toggle); // TODO: dej v eno metodo
+    ui->receiveButton->setEnabled(toggle);
     ui->serverConnectionInfo->setEnabled(toggle);
     ui->serverTcpPortLine->setEnabled(toggle);
     ui->clientConnectionInfo->setEnabled(toggle);
@@ -54,7 +54,6 @@ void MainWindow::updateConnectButton(bool toggle)
 void MainWindow::on_receiveButton_clicked()
 {
     ui->receiveButton->setEnabled(false);
-    //ui->connectionStatus->setText("Establishing connection to server...");
     ui->serverConnectionInfo->setEnabled(false);
     ui->serverTcpPortLine->setEnabled(false);
     ui->clientConnectionInfo->setEnabled(false);

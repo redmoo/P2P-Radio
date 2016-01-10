@@ -41,7 +41,7 @@ void MainWindow::updateConnectionInfo(QString ip, quint16 port)
 
 void MainWindow::on_startStream_clicked()
 {
-    ui->startStream->setEnabled(false); // TODO: sprosti kaksne zadeve ko nehas streamat.. lahk tut nehas... recmo toggle za stream
+    ui->startStream->setEnabled(false);
     ui->chainCheckBox->setEnabled(false);
     ui->connectionInfoLine->setEnabled(false);
     ui->portInfoLine->setEnabled(false);
