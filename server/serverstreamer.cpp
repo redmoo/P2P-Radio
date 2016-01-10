@@ -180,18 +180,12 @@ void ServerStreamer::sendStreamInstruction(const Common::ClientInfo *src, const 
     out.setVersion(QDataStream::Qt_5_0);
 
     out << (quint16)0;
-    auto t = Common::StreamCommand(dst->address.toString(), dst->port, reset);
-    auto test = t.serialize();
-    auto sc = Common::StreamCommand();
-    sc.deserialize(test, true);
-    qDebug() << "Connection mend:" << sc.address << sc.port << sc.reset_destinations;
-
-    block.append(test);
+    block.append(Common::StreamCommand(dst->address.toString(), dst->port, reset).serialize());
     out.device()->seek(0);
     out << (quint16)(block.size() - sizeof(quint16));
 
     src->connection->write(block);
     src->connection->waitForBytesWritten();
 
-    qDebug() << "Server: Stream command sent:" << t.address << t.port << t.reset_destinations;
+    qDebug() << "Server: Stream command sent:" << dst->address.toString() << dst->port << reset;
 }

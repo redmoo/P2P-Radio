@@ -187,7 +187,9 @@ void StreamReceiver::displayError(QAbstractSocket::SocketError socketError)
     default:
         connStatus = "The following error occurred: " + clientTcpSocket->errorString();
     }
+
     qDebug() << connStatus;
+
     emit(connectionStatusChanged(connStatus));
     emit(activityLogChanged("Connection closed " + connStatus ));
     emit(connectButtonToggle(true));
